@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme inline {
+  --color-background: #0a0a0f;
+  --color-surface: #111118;
+  --color-surface-2: #1a1a24;
+  --color-surface-3: #20202e;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-subtle: rgba(255, 255, 255, 0.04);
+  --color-indigo: #6366f1;
+  --color-indigo-dim: rgba(99, 102, 241, 0.12);
+  --color-indigo-hover: #818cf8;
+  --color-text: #e2e8f0;
+  --color-text-muted: #64748b;
+  --color-text-dim: #334155;
+  --color-green: #22c55e;
+  --color-amber: #f59e0b;
+  --color-red: #ef4444;
+  --color-blue: #3b82f6;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #0a0a0f;
+  color: #e2e8f0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Thin scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Selection */
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: #e2e8f0;
+}
+
+/* Mono font utility */
+.font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Pulse animation for WS indicator */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.ws-pulse {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Highlight text for search */
+mark {
+  background: rgba(99, 102, 241, 0.35);
+  color: #a5b4fc;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* Timeline */
+.timeline-line {
+  position: absolute;
+  left: 7px;
+  top: 20px;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
