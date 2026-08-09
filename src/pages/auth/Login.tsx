@@ -41,11 +41,9 @@ function Login() {
       formdata.append("password", password);
 
       const res = await axios.post(`${API_BASE_URL}/auth/token`, formdata, {});
+      LoginUser = res.data;
 
-      console.log(res.data.data);
-      LoginUser = res.data.data;
-      console.log(LoginUser);
-
+      localStorage.setItem("token", JSON.stringify(res.data.access_token));
       nav("/dashboard");
     } catch (err) {
       console.log(err);

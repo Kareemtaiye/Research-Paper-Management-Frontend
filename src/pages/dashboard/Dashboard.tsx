@@ -2,7 +2,8 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import PageHeader from "@/components/Pageheader";
 import { Icon } from "@/ui/icons";
-import React, { useState } from "react";
+import { formatDate } from "@/utils/utils";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const TASKS: Task[] = [
@@ -114,7 +115,7 @@ const PAPERS: Paper[] = [
       "We present a revised analysis of the transformer architecture with particular focus on attention mechanisms that scale to long-context sequences. Our experiments demonstrate that sparse attention patterns combined with rotary position embeddings yield significant improvements on benchmarks requiring understanding of documents exceeding 100k tokens.",
     categories: ["cs.LG", "cs.CL", "cs.AI"],
     status: "imported",
-    imported_at: "2024-01-15T09:23:11Z",
+    created_at: "2024-01-15T09:23:11Z",
     updated_at: "2024-01-15T09:31:44Z",
     citation_count: 1482,
   },
@@ -127,7 +128,7 @@ const PAPERS: Paper[] = [
       "We study how scaling laws for language models are affected when training and evaluation distributions diverge. Contrary to prior assumptions, we find that model capacity and data diversity interact non-linearly, with implications for efficient resource allocation in large-scale pretraining runs.",
     categories: ["cs.LG", "stat.ML"],
     status: "imported",
-    imported_at: "2024-02-20T14:11:05Z",
+    created_at: "2024-02-20T14:11:05Z",
     updated_at: "2024-02-20T14:45:30Z",
     citation_count: 874,
   },
@@ -140,7 +141,7 @@ const PAPERS: Paper[] = [
       "We propose KG-RAG, a framework that integrates structured knowledge graph traversal into the retrieval pipeline for generation models. By grounding retrieved contexts in ontological relationships, KG-RAG reduces hallucination rates by 34% on knowledge-intensive NLP benchmarks.",
     categories: ["cs.CL", "cs.IR", "cs.AI"],
     status: "processing",
-    imported_at: "2024-03-08T07:55:22Z",
+    created_at: "2024-03-08T07:55:22Z",
     updated_at: "2024-03-08T08:01:17Z",
     citation_count: 312,
   },
@@ -153,7 +154,7 @@ const PAPERS: Paper[] = [
       "We introduce a scalable approach to training safe AI systems using AI-generated constitutional principles. Our method reduces the need for human labeling of harmful outputs while maintaining performance across standard capability benchmarks.",
     categories: ["cs.AI", "cs.CL"],
     status: "imported",
-    imported_at: "2024-03-12T16:44:00Z",
+    created_at: "2024-03-12T16:44:00Z",
     updated_at: "2024-03-12T17:02:55Z",
     citation_count: 2091,
   },
@@ -166,7 +167,7 @@ const PAPERS: Paper[] = [
       "Sparse mixture-of-experts layers offer a path to scaling model capacity without proportional increases in compute. We analyze routing instabilities that emerge at scale and introduce a differentiable load balancing objective that yields more uniform expert utilization across diverse task distributions.",
     categories: ["cs.LG", "cs.CL"],
     status: "pending",
-    imported_at: "2024-04-05T11:22:18Z",
+    created_at: "2024-04-05T11:22:18Z",
     updated_at: "2024-04-05T11:22:18Z",
     citation_count: 0,
   },
@@ -179,7 +180,7 @@ const PAPERS: Paper[] = [
       "We conduct a systematic empirical study of RLHF across model scales from 1B to 70B parameters. Our analysis reveals that reward model quality dominates policy optimization choice, and that preference data diversity matters more than volume beyond a critical threshold.",
     categories: ["cs.LG", "cs.CL", "cs.AI"],
     status: "failed",
-    imported_at: "2024-05-01T08:30:00Z",
+    created_at: "2024-05-01T08:30:00Z",
     updated_at: "2024-05-01T08:32:14Z",
     citation_count: 0,
   },
@@ -192,7 +193,7 @@ const PAPERS: Paper[] = [
       "Scientific documents present unique challenges for vision-language models due to specialized notation, domain-specific charts, and multi-modal reasoning requirements. We introduce SciVLM, a model trained on a curated corpus of 2.4M annotated scientific figures with structured captions.",
     categories: ["cs.CV", "cs.CL", "cs.AI"],
     status: "queued",
-    imported_at: "2024-05-14T13:07:45Z",
+    created_at: "2024-05-14T13:07:45Z",
     updated_at: "2024-05-14T13:07:45Z",
     citation_count: 0,
   },
@@ -205,7 +206,7 @@ const PAPERS: Paper[] = [
       "Speculative decoding accelerates inference by using a smaller draft model to propose token sequences verified by the target model. We extend this paradigm to ensembles of draft models selected adaptively based on prompt characteristics, achieving 3.1× speedup over standard decoding.",
     categories: ["cs.LG", "cs.CL"],
     status: "imported",
-    imported_at: "2024-06-06T10:15:33Z",
+    created_at: "2024-06-06T10:15:33Z",
     updated_at: "2024-06-06T10:48:22Z",
     citation_count: 198,
   },
@@ -252,14 +253,6 @@ const StatusChip = ({ status }: { status: PaperStatus }) => {
     </span>
   );
 };
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 const Stat = ({
   label,
@@ -319,7 +312,7 @@ function Dashboard() {
         title="Dashboard"
         subtitle="Overview of your research paper library"
         actions={
-          <Button size="sm" variant="outline" onClick={() => ""}>
+          <Button size="sm" variant="outline" onClick={() => nav("papers")}>
             View all papers
           </Button>
         }
@@ -377,7 +370,7 @@ function Dashboard() {
                 {PAPERS.slice(0, 6).map((paper, i) => (
                   <tr
                     key={paper.id}
-                    onClick={() => ""}
+                    onClick={() => nav(`/papers/${paper.id}`)}
                     className="cursor-pointer group transition-colors"
                     style={{
                       borderBottom: i < 5 ? "0.5px solid rgba(255,255,255,0.04)" : "none",
@@ -405,7 +398,7 @@ function Dashboard() {
                       <StatusChip status={paper.status} />
                     </td>
                     <td className="px-5 py-3 text-xs text-slate-600">
-                      {formatDate(paper.imported_at)}
+                      {formatDate(paper.created_at)}
                     </td>
                   </tr>
                 ))}

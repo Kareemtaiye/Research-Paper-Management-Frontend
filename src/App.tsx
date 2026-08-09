@@ -8,9 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import axios from "axios";
-
-const API_BASE_URL = "http://localhost/api/v1";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,7 +34,7 @@ interface Paper {
   abstract: string;
   categories: string[];
   status: PaperStatus;
-  imported_at: string;
+  created_at: string;
   updated_at: string;
   citation_count: number;
 }
@@ -67,7 +64,7 @@ const PAPERS: Paper[] = [
       "We present a revised analysis of the transformer architecture with particular focus on attention mechanisms that scale to long-context sequences. Our experiments demonstrate that sparse attention patterns combined with rotary position embeddings yield significant improvements on benchmarks requiring understanding of documents exceeding 100k tokens.",
     categories: ["cs.LG", "cs.CL", "cs.AI"],
     status: "imported",
-    imported_at: "2024-01-15T09:23:11Z",
+    created_at: "2024-01-15T09:23:11Z",
     updated_at: "2024-01-15T09:31:44Z",
     citation_count: 1482,
   },
@@ -80,7 +77,7 @@ const PAPERS: Paper[] = [
       "We study how scaling laws for language models are affected when training and evaluation distributions diverge. Contrary to prior assumptions, we find that model capacity and data diversity interact non-linearly, with implications for efficient resource allocation in large-scale pretraining runs.",
     categories: ["cs.LG", "stat.ML"],
     status: "imported",
-    imported_at: "2024-02-20T14:11:05Z",
+    created_at: "2024-02-20T14:11:05Z",
     updated_at: "2024-02-20T14:45:30Z",
     citation_count: 874,
   },
@@ -93,7 +90,7 @@ const PAPERS: Paper[] = [
       "We propose KG-RAG, a framework that integrates structured knowledge graph traversal into the retrieval pipeline for generation models. By grounding retrieved contexts in ontological relationships, KG-RAG reduces hallucination rates by 34% on knowledge-intensive NLP benchmarks.",
     categories: ["cs.CL", "cs.IR", "cs.AI"],
     status: "processing",
-    imported_at: "2024-03-08T07:55:22Z",
+    created_at: "2024-03-08T07:55:22Z",
     updated_at: "2024-03-08T08:01:17Z",
     citation_count: 312,
   },
@@ -106,7 +103,7 @@ const PAPERS: Paper[] = [
       "We introduce a scalable approach to training safe AI systems using AI-generated constitutional principles. Our method reduces the need for human labeling of harmful outputs while maintaining performance across standard capability benchmarks.",
     categories: ["cs.AI", "cs.CL"],
     status: "imported",
-    imported_at: "2024-03-12T16:44:00Z",
+    created_at: "2024-03-12T16:44:00Z",
     updated_at: "2024-03-12T17:02:55Z",
     citation_count: 2091,
   },
@@ -119,7 +116,7 @@ const PAPERS: Paper[] = [
       "Sparse mixture-of-experts layers offer a path to scaling model capacity without proportional increases in compute. We analyze routing instabilities that emerge at scale and introduce a differentiable load balancing objective that yields more uniform expert utilization across diverse task distributions.",
     categories: ["cs.LG", "cs.CL"],
     status: "pending",
-    imported_at: "2024-04-05T11:22:18Z",
+    created_at: "2024-04-05T11:22:18Z",
     updated_at: "2024-04-05T11:22:18Z",
     citation_count: 0,
   },
@@ -132,7 +129,7 @@ const PAPERS: Paper[] = [
       "We conduct a systematic empirical study of RLHF across model scales from 1B to 70B parameters. Our analysis reveals that reward model quality dominates policy optimization choice, and that preference data diversity matters more than volume beyond a critical threshold.",
     categories: ["cs.LG", "cs.CL", "cs.AI"],
     status: "failed",
-    imported_at: "2024-05-01T08:30:00Z",
+    created_at: "2024-05-01T08:30:00Z",
     updated_at: "2024-05-01T08:32:14Z",
     citation_count: 0,
   },
@@ -145,7 +142,7 @@ const PAPERS: Paper[] = [
       "Scientific documents present unique challenges for vision-language models due to specialized notation, domain-specific charts, and multi-modal reasoning requirements. We introduce SciVLM, a model trained on a curated corpus of 2.4M annotated scientific figures with structured captions.",
     categories: ["cs.CV", "cs.CL", "cs.AI"],
     status: "queued",
-    imported_at: "2024-05-14T13:07:45Z",
+    created_at: "2024-05-14T13:07:45Z",
     updated_at: "2024-05-14T13:07:45Z",
     citation_count: 0,
   },
@@ -158,108 +155,9 @@ const PAPERS: Paper[] = [
       "Speculative decoding accelerates inference by using a smaller draft model to propose token sequences verified by the target model. We extend this paradigm to ensembles of draft models selected adaptively based on prompt characteristics, achieving 3.1× speedup over standard decoding.",
     categories: ["cs.LG", "cs.CL"],
     status: "imported",
-    imported_at: "2024-06-06T10:15:33Z",
+    created_at: "2024-06-06T10:15:33Z",
     updated_at: "2024-06-06T10:48:22Z",
     citation_count: 198,
-  },
-];
-
-const TASKS: Task[] = [
-  {
-    id: "task-001",
-    type: "import",
-    paper_id: "3",
-    paper_title: "Retrieval-Augmented Generation with Structured Knowledge Graphs",
-    status: "running",
-    step: "Extracting citations",
-    progress: 62,
-    started_at: "2024-06-06T10:46:00Z",
-    duration: "2m 14s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-002",
-    type: "pdf",
-    paper_id: "7",
-    paper_title: "Vision Language Models for Scientific Figure Understanding",
-    status: "running",
-    step: "Parsing PDF metadata",
-    progress: 14,
-    started_at: "2024-06-06T10:47:13Z",
-    duration: "47s",
-    worker: "celery@worker-2",
-  },
-  {
-    id: "task-003",
-    type: "embed",
-    paper_id: "5",
-    paper_title: "Mixture of Experts: Dynamic Routing for Efficient Language Modeling",
-    status: "queued",
-    step: "Waiting for worker",
-    progress: 0,
-    started_at: "2024-06-06T10:47:55Z",
-    duration: "—",
-    worker: "—",
-  },
-  {
-    id: "task-004",
-    type: "index",
-    paper_id: "8",
-    paper_title: "Speculative Decoding with Draft Model Ensembles",
-    status: "completed",
-    step: "Full-text index built",
-    progress: 100,
-    started_at: "2024-06-06T09:58:10Z",
-    duration: "1m 43s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-005",
-    type: "citation",
-    paper_id: "2",
-    paper_title: "Scaling Laws for Neural Language Models Under Distribution Shift",
-    status: "completed",
-    step: "47 references parsed",
-    progress: 100,
-    started_at: "2024-06-06T09:31:05Z",
-    duration: "58s",
-    worker: "celery@worker-3",
-  },
-  {
-    id: "task-006",
-    type: "import",
-    paper_id: "6",
-    paper_title: "Reinforcement Learning from Human Feedback: An Empirical Analysis",
-    status: "failed",
-    step: "PDF download failed: 403 Forbidden",
-    progress: 18,
-    started_at: "2024-06-06T08:30:01Z",
-    duration: "2m 14s",
-    worker: "celery@worker-2",
-  },
-  {
-    id: "task-007",
-    type: "embed",
-    paper_id: "4",
-    paper_title: "Constitutional AI: Harmlessness from AI Feedback at Scale",
-    status: "completed",
-    step: "Embeddings stored in pgvector",
-    progress: 100,
-    started_at: "2024-06-06T08:12:30Z",
-    duration: "3m 02s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-008",
-    type: "pdf",
-    paper_id: "1",
-    paper_title: "Attention Is All You Need: Revisited for Long-Context Transformers",
-    status: "completed",
-    step: "Text extracted · 18,432 tokens",
-    progress: 100,
-    started_at: "2024-06-05T17:44:11Z",
-    duration: "1m 07s",
-    worker: "celery@worker-3",
   },
 ];
 
@@ -310,469 +208,6 @@ const SERVICES = [
   { name: "Celery workers", icon: "⚙", status: "3 active", color: "green" },
   { name: "Nginx gateway", icon: "🌐", status: "Healthy", color: "green" },
 ];
-
-// ─── Utilities ────────────────────────────────────────────────────────────────
-
-function highlight(text: string, query: string): string {
-  if (!query.trim()) return text;
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return text.replace(new RegExp(`(${escaped})`, "gi"), "<mark>$1</mark>");
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function exportCSV(papers: Paper[]) {
-  const headers = [
-    "arxiv_id",
-    "title",
-    "authors",
-    "categories",
-    "status",
-    "citation_count",
-    "imported_at",
-    "updated_at",
-  ];
-  const rows = papers.map(p => [
-    p.arxiv_id,
-    `"${p.title.replace(/"/g, '""')}"`,
-    `"${p.authors.join("; ")}"`,
-    `"${p.categories.join("; ")}"`,
-    p.status,
-    p.citation_count,
-    p.imported_at,
-    p.updated_at,
-  ]);
-  const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `papers-export-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ─── Design Atoms ─────────────────────────────────────────────────────────────
-
-const StatusChip = ({ status }: { status: PaperStatus }) => {
-  const map: Record<PaperStatus, { label: string; color: string; dot: string }> = {
-    imported: {
-      label: "Imported",
-      color: "text-green-400 bg-green-400/8 border-green-400/20",
-      dot: "bg-green-400",
-    },
-    processing: {
-      label: "Processing",
-      color: "text-blue-400 bg-blue-400/8 border-blue-400/20",
-      dot: "bg-blue-400",
-    },
-    pending: {
-      label: "Pending",
-      color: "text-amber-400 bg-amber-400/8 border-amber-400/20",
-      dot: "bg-amber-400",
-    },
-    queued: {
-      label: "Queued",
-      color: "text-slate-400 bg-slate-400/8 border-slate-400/20",
-      dot: "bg-slate-400",
-    },
-    failed: {
-      label: "Failed",
-      color: "text-red-400 bg-red-400/8 border-red-400/20",
-      dot: "bg-red-400",
-    },
-  };
-  const { label, color, dot } = map[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${color}`}
-      style={{ borderWidth: "0.5px" }}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {label}
-    </span>
-  );
-};
-
-const TaskStatusChip = ({ status }: { status: TaskStatus }) => {
-  const map: Record<TaskStatus, { label: string; color: string; dot: string }> = {
-    running: {
-      label: "Running",
-      color: "text-blue-400 bg-blue-400/8 border-blue-400/20",
-      dot: "bg-blue-400 ws-pulse",
-    },
-    completed: {
-      label: "Completed",
-      color: "text-green-400 bg-green-400/8 border-green-400/20",
-      dot: "bg-green-400",
-    },
-    failed: {
-      label: "Failed",
-      color: "text-red-400 bg-red-400/8 border-red-400/20",
-      dot: "bg-red-400",
-    },
-    queued: {
-      label: "Queued",
-      color: "text-slate-400 bg-slate-400/8 border-slate-400/20",
-      dot: "bg-slate-400",
-    },
-  };
-  const { label, color, dot } = map[status];
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${color}`}
-      style={{ borderWidth: "0.5px" }}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {label}
-    </span>
-  );
-};
-
-const ServiceChip = ({ status, color }: { status: string; color: string }) => (
-  <span
-    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border text-green-400 bg-green-400/8 border-green-400/20"
-    style={{ borderWidth: "0.5px" }}
-  >
-    <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-    {status}
-  </span>
-);
-
-const Badge = ({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => (
-  <span
-    className={`inline-flex px-1.5 py-0.5 rounded text-xs font-mono text-slate-400 bg-white/4 border border-white/6 ${className}`}
-    style={{ borderWidth: "0.5px" }}
-  >
-    {children}
-  </span>
-);
-
-const Stat = ({
-  label,
-  value,
-  sub,
-  dot,
-}: {
-  label: string;
-  value: string | number;
-  sub?: string;
-  dot?: string;
-}) => (
-  <div
-    className="p-5 rounded-lg border"
-    style={{
-      backgroundColor: "#111118",
-      borderColor: "rgba(255,255,255,0.06)",
-      borderWidth: "0.5px",
-    }}
-  >
-    <div className="text-xs text-slate-500 mb-2 uppercase tracking-widest font-medium">
-      {label}
-    </div>
-    <div className="text-2xl font-semibold text-slate-100 tabular-nums">{value}</div>
-    {sub && (
-      <div className="flex items-center gap-1.5 mt-1.5">
-        {dot && <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />}
-        <span className="text-xs text-slate-500">{sub}</span>
-      </div>
-    )}
-  </div>
-);
-// ─── Layout Shell ─────────────────────────────────────────────────────────────
-
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
-
-const Shell = () => {
-  const [wsConnected, setWsConnected] = useState(true);
-  const location = useLocation();
-
-  return (
-    <div className="flex min-h-screen" style={{ backgroundColor: "#0a0a0f" }}>
-      <Sidebar wsConnected={wsConnected} />
-      <main className="flex-1 overflow-auto" style={{ marginLeft: 224 }}>
-        <Outlet /> {/* renders the matched child route */}
-      </main>
-    </div>
-  );
-};
-
-// ─── Page Header ──────────────────────────────────────────────────────────────
-
-const PageHeader = ({
-  title,
-  subtitle,
-  actions,
-}: {
-  title: string;
-  subtitle?: string;
-  actions?: React.ReactNode;
-}) => (
-  <div
-    className="px-8 py-5 flex items-center justify-between"
-    style={{ borderBottom: "0.5px solid rgba(255,255,255,0.06)" }}
-  >
-    <div>
-      <h1 className="text-sm font-semibold text-slate-100">{title}</h1>
-      {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
-    </div>
-    {actions && <div className="flex items-center gap-2">{actions}</div>}
-  </div>
-);
-
-// ─── Paper Detail Page ────────────────────────────────────────────────────────
-
-const TIMELINE_EVENTS = [
-  {
-    ts: "09:23:11",
-    event: "Import requested",
-    detail: "ArXiv ID queued for processing",
-    status: "done",
-  },
-  {
-    ts: "09:23:14",
-    event: "Metadata fetched",
-    detail: "Title, authors, abstract retrieved from ArXiv API",
-    status: "done",
-  },
-  {
-    ts: "09:23:21",
-    event: "PDF downloaded",
-    detail: "1.4 MB · 24 pages · arxiv.pdf",
-    status: "done",
-  },
-  {
-    ts: "09:28:05",
-    event: "Text extraction",
-    detail: "pdfplumber extracted 18,432 tokens",
-    status: "done",
-  },
-  {
-    ts: "09:29:17",
-    event: "Citation parsing",
-    detail: "47 references identified and resolved",
-    status: "done",
-  },
-  {
-    ts: "09:31:44",
-    event: "Indexed",
-    detail: "Full-text index built · embedding stored in pgvector",
-    status: "done",
-  },
-];
-
-const PaperDetailPage = ({
-  paperId,
-  setPage,
-}: {
-  paperId: string;
-  setPage: (p: Page) => void;
-}) => {
-  const paper = PAPERS.find(p => p.id === paperId) || PAPERS[0];
-  const [copied, setCopied] = useState(false);
-  const copy = (text: string) => {
-    navigator.clipboard.writeText(text).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-
-  return (
-    <div>
-      <div
-        className="px-8 py-3 flex items-center gap-2 text-xs text-slate-600"
-        style={{ borderBottom: "0.5px solid rgba(255,255,255,0.06)" }}
-      >
-        <button
-          onClick={() => setPage("papers")}
-          className="hover:text-slate-400 transition-colors cursor-pointer"
-        >
-          Papers
-        </button>
-        <Icon.ChevronRight />
-        <span className="text-slate-500 font-mono">{paper.arxiv_id}</span>
-      </div>
-      <div className="px-8 py-6 max-w-4xl">
-        <div className="space-y-3 mb-6">
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="text-xl font-semibold text-slate-100 leading-snug">
-              {paper.title}
-            </h1>
-            <StatusChip status={paper.status} />
-          </div>
-          <div className="text-sm text-slate-500">{paper.authors.join(", ")}</div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex gap-1.5">
-              {paper.categories.map(c => (
-                <Badge key={c}>{c}</Badge>
-              ))}
-            </div>
-            <div className="h-3 w-px bg-white/10" />
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono text-xs text-slate-500">{paper.arxiv_id}</span>
-              <button
-                onClick={() => copy(paper.arxiv_id)}
-                className="text-slate-600 hover:text-slate-400 transition-colors cursor-pointer"
-              >
-                <Icon.Copy />
-              </button>
-              {copied && <span className="text-[10px] text-indigo-400">Copied</span>}
-            </div>
-            <div className="h-3 w-px bg-white/10" />
-            <a
-              href={`https://arxiv.org/abs/${paper.arxiv_id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-            >
-              arxiv.org <Icon.External />
-            </a>
-          </div>
-        </div>
-        <Divider />
-        <div className="grid grid-cols-3 gap-6 mt-6">
-          <div className="col-span-2 space-y-5">
-            <div
-              className="rounded-lg border p-5"
-              style={{
-                backgroundColor: "#111118",
-                borderColor: "rgba(255,255,255,0.06)",
-                borderWidth: "0.5px",
-              }}
-            >
-              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">
-                Abstract
-              </div>
-              <p className="text-sm text-slate-300 leading-relaxed">{paper.abstract}</p>
-            </div>
-            <div
-              className="rounded-lg border p-5"
-              style={{
-                backgroundColor: "#111118",
-                borderColor: "rgba(255,255,255,0.06)",
-                borderWidth: "0.5px",
-              }}
-            >
-              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-4">
-                Import Timeline
-              </div>
-              {TIMELINE_EVENTS.map((ev, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="flex flex-col items-center" style={{ minWidth: 16 }}>
-                    <div
-                      className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
-                      style={{
-                        backgroundColor: "#22c55e",
-                        boxShadow: "0 0 0 3px rgba(34,197,94,0.1)",
-                      }}
-                    />
-                    {i < TIMELINE_EVENTS.length - 1 && (
-                      <div
-                        className="flex-1 w-px mt-1"
-                        style={{
-                          backgroundColor: "rgba(255,255,255,0.06)",
-                          minHeight: 24,
-                        }}
-                      />
-                    )}
-                  </div>
-                  <div className="pb-4">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-sm text-slate-300 font-medium">
-                        {ev.event}
-                      </span>
-                      <span className="font-mono text-[10px] text-slate-600">
-                        {ev.ts}
-                      </span>
-                    </div>
-                    <div className="text-xs text-slate-500 mt-0.5">{ev.detail}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div
-              className="rounded-lg border p-4 space-y-3"
-              style={{
-                backgroundColor: "#111118",
-                borderColor: "rgba(255,255,255,0.06)",
-                borderWidth: "0.5px",
-              }}
-            >
-              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">
-                Metadata
-              </div>
-              {[
-                {
-                  label: "Imported",
-                  value: `${formatDate(paper.imported_at)} · ${formatTime(paper.imported_at)}`,
-                },
-                {
-                  label: "Updated",
-                  value: `${formatDate(paper.updated_at)} · ${formatTime(paper.updated_at)}`,
-                },
-                {
-                  label: "Citations",
-                  value:
-                    paper.citation_count > 0
-                      ? paper.citation_count.toLocaleString()
-                      : "None indexed",
-                },
-                {
-                  label: "Authors",
-                  value: `${paper.authors.length} author${paper.authors.length !== 1 ? "s" : ""}`,
-                },
-              ].map(({ label, value }) => (
-                <div key={label} className="space-y-0.5">
-                  <div className="text-[11px] text-slate-600">{label}</div>
-                  <div className="text-xs text-slate-400 font-mono">{value}</div>
-                </div>
-              ))}
-            </div>
-            <div
-              className="rounded-lg border p-4 space-y-2"
-              style={{
-                backgroundColor: "#111118",
-                borderColor: "rgba(255,255,255,0.06)",
-                borderWidth: "0.5px",
-              }}
-            >
-              <div className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">
-                Actions
-              </div>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Icon.Import />
-                Re-import
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Icon.Search />
-                Find similar
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // ─── Search Page ──────────────────────────────────────────────────────────────
 
@@ -917,216 +352,6 @@ const SearchPage = ({
     </div>
   );
 };
-
-// ─── Tasks Page ───────────────────────────────────────────────────────────────
-
-const TASK_TYPE_LABELS: Record<Task["type"], string> = {
-  import: "Import",
-  index: "Index",
-  citation: "Citations",
-  embed: "Embed",
-  pdf: "PDF",
-};
-
-const TasksPage = () => {
-  const [filter, setFilter] = useState<TaskStatus | "all">("all");
-  const statuses: (TaskStatus | "all")[] = [
-    "all",
-    "running",
-    "queued",
-    "completed",
-    "failed",
-  ];
-
-  const filtered = filter === "all" ? TASKS : TASKS.filter(t => t.status === filter);
-  const running = TASKS.filter(t => t.status === "running").length;
-  const queued = TASKS.filter(t => t.status === "queued").length;
-  const completed = TASKS.filter(t => t.status === "completed").length;
-  const failed = TASKS.filter(t => t.status === "failed").length;
-
-  return (
-    <div>
-      <PageHeader
-        title="Tasks"
-        subtitle={`${TASKS.length} total · ${running} running · ${queued} queued`}
-      />
-      <div className="px-8 py-5 space-y-5">
-        {/* Summary row */}
-        <div className="grid grid-cols-4 gap-3">
-          <Stat
-            label="Running"
-            value={running}
-            dot="bg-blue-400 ws-pulse"
-            sub="active workers"
-          />
-          <Stat
-            label="Queued"
-            value={queued}
-            dot="bg-slate-400"
-            sub="waiting for worker"
-          />
-          <Stat
-            label="Completed"
-            value={completed}
-            dot="bg-green-400"
-            sub="in this session"
-          />
-          <Stat label="Failed" value={failed} dot="bg-red-400" sub="require attention" />
-        </div>
-
-        {/* Filter tabs */}
-        <div className="flex gap-1">
-          {statuses.map(s => (
-            <button
-              key={s}
-              onClick={() => setFilter(s)}
-              className="px-3 py-1.5 rounded text-xs font-medium transition-all cursor-pointer"
-              style={{
-                backgroundColor: filter === s ? "rgba(99,102,241,0.15)" : "transparent",
-                color: filter === s ? "#a5b4fc" : "#475569",
-                border:
-                  filter === s
-                    ? "0.5px solid rgba(99,102,241,0.3)"
-                    : "0.5px solid transparent",
-              }}
-            >
-              {s === "all"
-                ? `All (${TASKS.length})`
-                : `${s.charAt(0).toUpperCase() + s.slice(1)} (${TASKS.filter(t => t.status === s).length})`}
-            </button>
-          ))}
-        </div>
-
-        {/* Task table */}
-        <div
-          className="rounded-lg border overflow-hidden"
-          style={{
-            backgroundColor: "#111118",
-            borderColor: "rgba(255,255,255,0.06)",
-            borderWidth: "0.5px",
-          }}
-        >
-          <table className="w-full">
-            <thead>
-              <tr
-                style={{
-                  borderBottom: "0.5px solid rgba(255,255,255,0.06)",
-                  backgroundColor: "rgba(255,255,255,0.015)",
-                }}
-              >
-                {[
-                  "Task ID",
-                  "Type",
-                  "Paper",
-                  "Status",
-                  "Step",
-                  "Progress",
-                  "Duration",
-                  "Worker",
-                ].map(h => (
-                  <th
-                    key={h}
-                    className="px-4 py-3 text-left text-[10px] font-medium text-slate-600 uppercase tracking-wider"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((task, i) => (
-                <tr
-                  key={task.id}
-                  className="transition-colors"
-                  style={{
-                    borderBottom:
-                      i < filtered.length - 1
-                        ? "0.5px solid rgba(255,255,255,0.04)"
-                        : "none",
-                  }}
-                  onMouseEnter={e =>
-                    ((e.currentTarget as HTMLElement).style.backgroundColor =
-                      "rgba(255,255,255,0.02)")
-                  }
-                  onMouseLeave={e =>
-                    ((e.currentTarget as HTMLElement).style.backgroundColor =
-                      "transparent")
-                  }
-                >
-                  <td className="px-4 py-3.5">
-                    <span className="font-mono text-[11px] text-slate-500">
-                      {task.id}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span
-                      className="inline-flex px-1.5 py-0.5 rounded text-[11px] font-mono text-slate-400 bg-white/4 border border-white/6"
-                      style={{ borderWidth: "0.5px" }}
-                    >
-                      {TASK_TYPE_LABELS[task.type]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5 max-w-[200px]">
-                    <div className="text-xs text-slate-400 line-clamp-1">
-                      {task.paper_title}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <TaskStatusChip status={task.status} />
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="text-xs text-slate-500 font-mono">{task.step}</span>
-                    {task.status === "failed" && (
-                      <button className="ml-2 text-[10px] text-indigo-400 hover:text-indigo-300 cursor-pointer inline-flex items-center gap-1">
-                        <Icon.Retry />
-                        Retry
-                      </button>
-                    )}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    {task.progress > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-16 rounded-full overflow-hidden"
-                          style={{ height: 2, backgroundColor: "rgba(255,255,255,0.06)" }}
-                        >
-                          <div
-                            className="h-full rounded-full"
-                            style={{
-                              width: `${task.progress}%`,
-                              backgroundColor:
-                                task.status === "failed" ? "#ef4444" : "#6366f1",
-                            }}
-                          />
-                        </div>
-                        <span className="text-[10px] font-mono text-slate-600 tabular-nums">
-                          {task.progress}%
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-slate-600">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="text-xs text-slate-600 font-mono">
-                      {task.duration}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="text-[11px] font-mono text-slate-600">
-                      {task.worker}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // ─── Metrics Page ─────────────────────────────────────────────────────────────
 
 const CustomTooltip = ({
@@ -1654,12 +879,19 @@ const SettingsPage = () => {
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Register from "./pages/auth/Register";
 import Login from "./pages/auth/Login";
-import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/dashboard/Dashboard";
-import Papers from "./pages/dashboard/Paper";
+import Papers from "./pages/papers/Paper";
 import Button from "./components/Button";
 import { Icon } from "./ui/icons";
-import Input from "./components/Input";
+import { highlight } from "./utils/utils";
+import { StatusChip } from "./components/StatusChip";
+import { ServiceChip } from "./components/ServiceChip";
+import PageHeader from "./components/Pageheader";
+import { Badge } from "./components/Badge";
+import { Stat } from "./components/Stat";
+import { Shell } from "./layouts/Shell";
+import PaperDetails from "./pages/papers/PaperDetails";
+import { Tasks } from "./pages/tasks/Task";
 
 export default function App() {
   return (
@@ -1671,11 +903,10 @@ export default function App() {
         <Route path="/" element={<Shell />}>
           <Route index path="dashboard" element={<Dashboard />} />
           <Route path="papers" element={<Papers />} />
+          <Route path="papers/:id" element={<PaperDetails />} />
+          <Route path="tasks" element={<Tasks />} />
           {/*
-          <Route path="papers" element={<PapersPage />} />
-          <Route path="papers/:id" element={<PaperDetailPage />} />
           <Route path="search" element={<SearchPage />} /> */}
-          <Route path="tasks" element={<TasksPage />} />
           <Route path="metrics" element={<MetricsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>

@@ -212,6 +212,30 @@ export const IconDownload = ({ size = 16, className = "" }) => (
   </svg>
 );
 
+export const IconSpin = ({ size = 16, className = "" }) => (
+  <svg
+    width={`${size}`}
+    height={`${size}`}
+    viewBox="0 0 14 14"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    className={className}
+    style={{ animation: "spin 0.8s linear infinite" }}
+  >
+    <path d="M7 1a6 6 0 016 6" strokeLinecap="round" opacity="1" />
+    <path d="M7 1a6 6 0 00-6 6" strokeLinecap="round" opacity="0.15" />
+    <path d="M1 7a6 6 0 006 6" strokeLinecap="round" opacity="0.15" />
+    <path d="M13 7a6 6 0 01-6 6" strokeLinecap="round" opacity="0.15" />
+    <style>{`
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `}</style>
+  </svg>
+);
+
 export const IconRetry = ({ size = 16, className = "" }) => (
   <svg
     width="12"
