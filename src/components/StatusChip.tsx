@@ -1,9 +1,9 @@
-type PaperStatus = "imported" | "processing" | "pending" | "failed" | "queued";
+import { PaperStatus } from "@/types/Paper";
 
 export function StatusChip({ status }: { status: PaperStatus }) {
   const map: Record<PaperStatus, { label: string; color: string; dot: string }> = {
-    imported: {
-      label: "Imported",
+    completed: {
+      label: "completed",
       color: "text-green-400 bg-green-400/8 border-green-400/20",
       dot: "bg-green-400",
     },
@@ -28,14 +28,14 @@ export function StatusChip({ status }: { status: PaperStatus }) {
       dot: "bg-red-400",
     },
   };
-  const { label, color, dot } = map[status];
+
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${color}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${map[status]?.color}`}
       style={{ borderWidth: "0.5px" }}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {label}
+      <span className={`w-1.5 h-1.5 rounded-full ${map[status]?.dot}`} />
+      {map[status]?.label || "Error with status"}
     </span>
   );
 }
