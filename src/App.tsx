@@ -211,668 +211,668 @@ const SERVICES = [
 
 // ─── Search Page ──────────────────────────────────────────────────────────────
 
-const SearchPage = ({
-  setPage,
-  setDetailId,
-}: {
-  setPage: (p: Page) => void;
-  setDetailId: (id: string) => void;
-}) => {
-  const [query, setQuery] = useState("");
-  const [inputVal, setInputVal] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+// const SearchPage = ({
+//   setPage,
+//   setDetailId,
+// }: {
+//   setPage: (p: Page) => void;
+//   setDetailId: (id: string) => void;
+// }) => {
+//   const [query, setQuery] = useState("");
+//   const [inputVal, setInputVal] = useState("");
+//   const inputRef = useRef<HTMLInputElement>(null);
+//   useEffect(() => {
+//     inputRef.current?.focus();
+//   }, []);
 
-  const results = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    return PAPERS.filter(
-      p =>
-        p.title.toLowerCase().includes(q) ||
-        p.abstract.toLowerCase().includes(q) ||
-        p.authors.some(a => a.toLowerCase().includes(q)) ||
-        p.categories.some(c => c.toLowerCase().includes(q)),
-    ).map(p => {
-      let matchIn: string = "title";
-      if (p.title.toLowerCase().includes(q)) matchIn = "title";
-      else if (p.authors.some(a => a.toLowerCase().includes(q))) matchIn = "author";
-      else if (p.categories.some(c => c.toLowerCase().includes(q))) matchIn = "category";
-      else matchIn = "abstract";
-      const snippetSrc = matchIn === "abstract" ? p.abstract : p.title;
-      const idx = snippetSrc.toLowerCase().indexOf(q);
-      const start = Math.max(0, idx - 80),
-        end = Math.min(snippetSrc.length, idx + query.length + 120);
-      const snippet =
-        (start > 0 ? "…" : "") +
-        snippetSrc.slice(start, end) +
-        (end < snippetSrc.length ? "…" : "");
-      return { paper: p, matchIn, snippet };
-    });
-  }, [query]);
+//   const results = useMemo(() => {
+//     if (!query.trim()) return [];
+//     const q = query.toLowerCase();
+//     return PAPERS.filter(
+//       p =>
+//         p.title.toLowerCase().includes(q) ||
+//         p.abstract.toLowerCase().includes(q) ||
+//         p.authors.some(a => a.toLowerCase().includes(q)) ||
+//         p.categories.some(c => c.toLowerCase().includes(q)),
+//     ).map(p => {
+//       let matchIn: string = "title";
+//       if (p.title.toLowerCase().includes(q)) matchIn = "title";
+//       else if (p.authors.some(a => a.toLowerCase().includes(q))) matchIn = "author";
+//       else if (p.categories.some(c => c.toLowerCase().includes(q))) matchIn = "category";
+//       else matchIn = "abstract";
+//       const snippetSrc = matchIn === "abstract" ? p.abstract : p.title;
+//       const idx = snippetSrc.toLowerCase().indexOf(q);
+//       const start = Math.max(0, idx - 80),
+//         end = Math.min(snippetSrc.length, idx + query.length + 120);
+//       const snippet =
+//         (start > 0 ? "…" : "") +
+//         snippetSrc.slice(start, end) +
+//         (end < snippetSrc.length ? "…" : "");
+//       return { paper: p, matchIn, snippet };
+//     });
+//   }, [query]);
 
-  return (
-    <div>
-      <PageHeader title="Search" subtitle="Full-text search across all imported papers" />
-      <div className="px-8 py-6">
-        <div className="flex gap-2 mb-6">
-          <div className="relative flex-1 max-w-xl">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600">
-              <Icon.Search />
-            </div>
-            <input
-              ref={inputRef}
-              className="w-full pl-9 pr-4 py-2.5 text-sm rounded-md text-slate-200 placeholder-slate-600 outline-none transition-colors"
-              style={{
-                backgroundColor: "#111118",
-                border: "0.5px solid rgba(255,255,255,0.08)",
-              }}
-              placeholder="Search titles, abstracts, authors…"
-              value={inputVal}
-              onChange={e => setInputVal(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && setQuery(inputVal)}
-            />
-          </div>
-          <Button onClick={() => setQuery(inputVal)}>Search</Button>
-        </div>
-        {query === "" ? (
-          <div className="text-center py-20">
-            <div className="text-sm text-slate-600">
-              Enter a query to search {PAPERS.length} papers
-            </div>
-            <div className="text-xs text-slate-700 mt-1">
-              Searches titles, abstracts, and authors
-            </div>
-          </div>
-        ) : results.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-sm text-slate-600">
-              No results for <span className="text-slate-400">"{query}"</span>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <div className="text-xs text-slate-600 mb-4">
-              {results.length} result{results.length !== 1 ? "s" : ""} for{" "}
-              <span className="text-slate-400">"{query}"</span>
-            </div>
-            {results.map(({ paper, matchIn, snippet }) => (
-              <div
-                key={paper.id}
-                onClick={() => {
-                  setDetailId(paper.id);
-                  setPage("paper-detail");
-                }}
-                className="rounded-lg border p-5 cursor-pointer group transition-all"
-                style={{
-                  backgroundColor: "#111118",
-                  borderColor: "rgba(255,255,255,0.06)",
-                  borderWidth: "0.5px",
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "#141420";
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "rgba(99,102,241,0.2)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "#111118";
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "rgba(255,255,255,0.06)";
-                }}
-              >
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <div
-                    className="text-sm font-medium text-slate-200 leading-snug"
-                    dangerouslySetInnerHTML={{ __html: highlight(paper.title, query) }}
-                  />
-                  <StatusChip status={paper.status} />
-                </div>
-                <div className="text-xs text-slate-500 mb-2 font-mono">
-                  {paper.arxiv_id} · {paper.authors.slice(0, 2).join(", ")}
-                  {paper.authors.length > 2 ? " et al." : ""}
-                </div>
-                <div
-                  className="text-xs text-slate-500 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: highlight(snippet, query) }}
-                />
-                <div className="flex items-center gap-2 mt-3">
-                  {paper.categories.map(c => (
-                    <Badge key={c}>{c}</Badge>
-                  ))}
-                  <span className="ml-auto text-[10px] text-slate-600">
-                    match in {matchIn}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div>
+//       <PageHeader title="Search" subtitle="Full-text search across all imported papers" />
+//       <div className="px-8 py-6">
+//         <div className="flex gap-2 mb-6">
+//           <div className="relative flex-1 max-w-xl">
+//             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600">
+//               <Icon.Search />
+//             </div>
+//             <input
+//               ref={inputRef}
+//               className="w-full pl-9 pr-4 py-2.5 text-sm rounded-md text-slate-200 placeholder-slate-600 outline-none transition-colors"
+//               style={{
+//                 backgroundColor: "#111118",
+//                 border: "0.5px solid rgba(255,255,255,0.08)",
+//               }}
+//               placeholder="Search titles, abstracts, authors…"
+//               value={inputVal}
+//               onChange={e => setInputVal(e.target.value)}
+//               onKeyDown={e => e.key === "Enter" && setQuery(inputVal)}
+//             />
+//           </div>
+//           <Button onClick={() => setQuery(inputVal)}>Search</Button>
+//         </div>
+//         {query === "" ? (
+//           <div className="text-center py-20">
+//             <div className="text-sm text-slate-600">
+//               Enter a query to search {PAPERS.length} papers
+//             </div>
+//             <div className="text-xs text-slate-700 mt-1">
+//               Searches titles, abstracts, and authors
+//             </div>
+//           </div>
+//         ) : results.length === 0 ? (
+//           <div className="text-center py-20">
+//             <div className="text-sm text-slate-600">
+//               No results for <span className="text-slate-400">"{query}"</span>
+//             </div>
+//           </div>
+//         ) : (
+//           <div className="space-y-2">
+//             <div className="text-xs text-slate-600 mb-4">
+//               {results.length} result{results.length !== 1 ? "s" : ""} for{" "}
+//               <span className="text-slate-400">"{query}"</span>
+//             </div>
+//             {results.map(({ paper, matchIn, snippet }) => (
+//               <div
+//                 key={paper.id}
+//                 onClick={() => {
+//                   setDetailId(paper.id);
+//                   setPage("paper-detail");
+//                 }}
+//                 className="rounded-lg border p-5 cursor-pointer group transition-all"
+//                 style={{
+//                   backgroundColor: "#111118",
+//                   borderColor: "rgba(255,255,255,0.06)",
+//                   borderWidth: "0.5px",
+//                 }}
+//                 onMouseEnter={e => {
+//                   (e.currentTarget as HTMLElement).style.backgroundColor = "#141420";
+//                   (e.currentTarget as HTMLElement).style.borderColor =
+//                     "rgba(99,102,241,0.2)";
+//                 }}
+//                 onMouseLeave={e => {
+//                   (e.currentTarget as HTMLElement).style.backgroundColor = "#111118";
+//                   (e.currentTarget as HTMLElement).style.borderColor =
+//                     "rgba(255,255,255,0.06)";
+//                 }}
+//               >
+//                 <div className="flex items-start justify-between gap-4 mb-2">
+//                   <div
+//                     className="text-sm font-medium text-slate-200 leading-snug"
+//                     dangerouslySetInnerHTML={{ __html: highlight(paper.title, query) }}
+//                   />
+//                   <StatusChip status={paper.status} />
+//                 </div>
+//                 <div className="text-xs text-slate-500 mb-2 font-mono">
+//                   {paper.arxiv_id} · {paper.authors.slice(0, 2).join(", ")}
+//                   {paper.authors.length > 2 ? " et al." : ""}
+//                 </div>
+//                 <div
+//                   className="text-xs text-slate-500 leading-relaxed"
+//                   dangerouslySetInnerHTML={{ __html: highlight(snippet, query) }}
+//                 />
+//                 <div className="flex items-center gap-2 mt-3">
+//                   {paper.categories.map(c => (
+//                     <Badge key={c}>{c}</Badge>
+//                   ))}
+//                   <span className="ml-auto text-[10px] text-slate-600">
+//                     match in {matchIn}
+//                   </span>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
 // ─── Metrics Page ─────────────────────────────────────────────────────────────
 
-const CustomTooltip = ({
-  active,
-  payload,
-}: {
-  active?: boolean;
-  payload?: { value: number }[];
-}) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div
-      className="rounded-md px-3 py-2 text-xs font-mono"
-      style={{
-        backgroundColor: "#1a1a24",
-        border: "0.5px solid rgba(255,255,255,0.1)",
-        color: "#e2e8f0",
-      }}
-    >
-      {payload[0].value} req/min
-    </div>
-  );
-};
+// const CustomTooltip = ({
+//   active,
+//   payload,
+// }: {
+//   active?: boolean;
+//   payload?: { value: number }[];
+// }) => {
+//   if (!active || !payload?.length) return null;
+//   return (
+//     <div
+//       className="rounded-md px-3 py-2 text-xs font-mono"
+//       style={{
+//         backgroundColor: "#1a1a24",
+//         border: "0.5px solid rgba(255,255,255,0.1)",
+//         color: "#e2e8f0",
+//       }}
+//     >
+//       {payload[0].value} req/min
+//     </div>
+//   );
+// };
 
-const MetricsPage = () => {
-  const [refreshing, setRefreshing] = useState(false);
-  const [lastRefreshed, setLastRefreshed] = useState("just now");
+// const MetricsPage = () => {
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [lastRefreshed, setLastRefreshed] = useState("just now");
 
-  const handleRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-      setLastRefreshed("just now");
-    }, 900);
-  }, []);
+//   const handleRefresh = useCallback(() => {
+//     setRefreshing(true);
+//     setTimeout(() => {
+//       setRefreshing(false);
+//       setLastRefreshed("just now");
+//     }, 900);
+//   }, []);
 
-  const maxCount = Math.max(...ENDPOINT_DATA.map(e => e.count));
+//   const maxCount = Math.max(...ENDPOINT_DATA.map(e => e.count));
 
-  return (
-    <div>
-      <PageHeader
-        title="Metrics"
-        subtitle="Prometheus + Grafana observability layer"
-        actions={
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-600">Updated {lastRefreshed}</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={refreshing}
-            >
-              <span className={refreshing ? "animate-spin" : ""}>
-                <Icon.Refresh />
-              </span>
-              Refresh
-            </Button>
-          </div>
-        }
-      />
+//   return (
+//     <div>
+//       <PageHeader
+//         title="Metrics"
+//         subtitle="Prometheus + Grafana observability layer"
+//         actions={
+//           <div className="flex items-center gap-3">
+//             <span className="text-xs text-slate-600">Updated {lastRefreshed}</span>
+//             <Button
+//               variant="outline"
+//               size="sm"
+//               onClick={handleRefresh}
+//               disabled={refreshing}
+//             >
+//               <span className={refreshing ? "animate-spin" : ""}>
+//                 <Icon.Refresh />
+//               </span>
+//               Refresh
+//             </Button>
+//           </div>
+//         }
+//       />
 
-      <div className="px-8 py-6 space-y-5">
-        {/* Stat cards */}
-        <div className="grid grid-cols-4 gap-3">
-          <Stat label="Requests / min" value="142" dot="bg-green-400" sub="Normal" />
-          <Stat label="P95 Latency" value="48ms" dot="bg-green-400" sub="Healthy" />
-          <Stat
-            label="Error Rate"
-            value="0.3%"
-            dot="bg-green-400"
-            sub="Below threshold"
-          />
-          <Stat
-            label="Active Workers"
-            value="3"
-            dot="bg-green-400"
-            sub="Celery healthy"
-          />
-        </div>
+//       <div className="px-8 py-6 space-y-5">
+//         {/* Stat cards */}
+//         <div className="grid grid-cols-4 gap-3">
+//           <Stat label="Requests / min" value="142" dot="bg-green-400" sub="Normal" />
+//           <Stat label="P95 Latency" value="48ms" dot="bg-green-400" sub="Healthy" />
+//           <Stat
+//             label="Error Rate"
+//             value="0.3%"
+//             dot="bg-green-400"
+//             sub="Below threshold"
+//           />
+//           <Stat
+//             label="Active Workers"
+//             value="3"
+//             dot="bg-green-400"
+//             sub="Celery healthy"
+//           />
+//         </div>
 
-        {/* Two-column row */}
-        <div className="grid grid-cols-3 gap-4">
-          {/* Endpoint bar chart */}
-          <div
-            className="col-span-2 rounded-lg border p-5"
-            style={{
-              backgroundColor: "#111118",
-              borderColor: "rgba(255,255,255,0.06)",
-              borderWidth: "0.5px",
-            }}
-          >
-            <div className="text-xs font-medium text-slate-400 mb-5">
-              Requests by endpoint
-            </div>
-            <div className="space-y-3">
-              {ENDPOINT_DATA.map(({ endpoint, count, pct }) => (
-                <div key={endpoint} className="flex items-center gap-3">
-                  <div
-                    className="text-xs text-slate-500 font-mono text-right flex-shrink-0"
-                    style={{ width: 160 }}
-                  >
-                    {endpoint}
-                  </div>
-                  <div
-                    className="flex-1 rounded-full overflow-hidden"
-                    style={{ height: 6, backgroundColor: "rgba(255,255,255,0.05)" }}
-                  >
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: `${(count / maxCount) * 100}%`,
-                        backgroundColor: "#6366f1",
-                        opacity: 0.85 + (count / maxCount) * 0.15,
-                      }}
-                    />
-                  </div>
-                  <div
-                    className="text-xs font-mono tabular-nums text-slate-500 text-right flex-shrink-0"
-                    style={{ width: 48 }}
-                  >
-                    {count.toLocaleString()}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+//         {/* Two-column row */}
+//         <div className="grid grid-cols-3 gap-4">
+//           {/* Endpoint bar chart */}
+//           <div
+//             className="col-span-2 rounded-lg border p-5"
+//             style={{
+//               backgroundColor: "#111118",
+//               borderColor: "rgba(255,255,255,0.06)",
+//               borderWidth: "0.5px",
+//             }}
+//           >
+//             <div className="text-xs font-medium text-slate-400 mb-5">
+//               Requests by endpoint
+//             </div>
+//             <div className="space-y-3">
+//               {ENDPOINT_DATA.map(({ endpoint, count, pct }) => (
+//                 <div key={endpoint} className="flex items-center gap-3">
+//                   <div
+//                     className="text-xs text-slate-500 font-mono text-right flex-shrink-0"
+//                     style={{ width: 160 }}
+//                   >
+//                     {endpoint}
+//                   </div>
+//                   <div
+//                     className="flex-1 rounded-full overflow-hidden"
+//                     style={{ height: 6, backgroundColor: "rgba(255,255,255,0.05)" }}
+//                   >
+//                     <div
+//                       className="h-full rounded-full transition-all duration-700"
+//                       style={{
+//                         width: `${(count / maxCount) * 100}%`,
+//                         backgroundColor: "#6366f1",
+//                         opacity: 0.85 + (count / maxCount) * 0.15,
+//                       }}
+//                     />
+//                   </div>
+//                   <div
+//                     className="text-xs font-mono tabular-nums text-slate-500 text-right flex-shrink-0"
+//                     style={{ width: 48 }}
+//                   >
+//                     {count.toLocaleString()}
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
 
-          {/* System health */}
-          <div
-            className="rounded-lg border p-5"
-            style={{
-              backgroundColor: "#111118",
-              borderColor: "rgba(255,255,255,0.06)",
-              borderWidth: "0.5px",
-            }}
-          >
-            <div className="text-xs font-medium text-slate-400 mb-4">System health</div>
-            <div className="space-y-2.5">
-              {SERVICES.map(svc => (
-                <div
-                  key={svc.name}
-                  className="flex items-center justify-between gap-3"
-                  style={{
-                    borderBottom: "0.5px solid rgba(255,255,255,0.04)",
-                    paddingBottom: 10,
-                  }}
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span
-                      className="text-sm flex-shrink-0"
-                      style={{ fontFamily: "system-ui" }}
-                    >
-                      {svc.icon}
-                    </span>
-                    <span className="text-xs text-slate-400 truncate">{svc.name}</span>
-                  </div>
-                  <ServiceChip status={svc.status} color={svc.color} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+//           {/* System health */}
+//           <div
+//             className="rounded-lg border p-5"
+//             style={{
+//               backgroundColor: "#111118",
+//               borderColor: "rgba(255,255,255,0.06)",
+//               borderWidth: "0.5px",
+//             }}
+//           >
+//             <div className="text-xs font-medium text-slate-400 mb-4">System health</div>
+//             <div className="space-y-2.5">
+//               {SERVICES.map(svc => (
+//                 <div
+//                   key={svc.name}
+//                   className="flex items-center justify-between gap-3"
+//                   style={{
+//                     borderBottom: "0.5px solid rgba(255,255,255,0.04)",
+//                     paddingBottom: 10,
+//                   }}
+//                 >
+//                   <div className="flex items-center gap-2 min-w-0">
+//                     <span
+//                       className="text-sm flex-shrink-0"
+//                       style={{ fontFamily: "system-ui" }}
+//                     >
+//                       {svc.icon}
+//                     </span>
+//                     <span className="text-xs text-slate-400 truncate">{svc.name}</span>
+//                   </div>
+//                   <ServiceChip status={svc.status} color={svc.color} />
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
 
-        {/* Timeline chart */}
-        <div
-          className="rounded-lg border p-5"
-          style={{
-            backgroundColor: "#111118",
-            borderColor: "rgba(255,255,255,0.06)",
-            borderWidth: "0.5px",
-          }}
-        >
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <div className="text-xs font-medium text-slate-400">Request timeline</div>
-              <div className="text-[11px] text-slate-600 mt-0.5">
-                Requests per minute · last 60 minutes
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <div
-                className="w-3 h-0.5 rounded-full"
-                style={{ backgroundColor: "#6366f1" }}
-              />
-              <span className="text-[11px] text-slate-600">req/min</span>
-            </div>
-          </div>
-          <div style={{ height: 200 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={TIMELINE_DATA}
-                margin={{ top: 4, right: 8, bottom: 0, left: 0 }}
-              >
-                <CartesianGrid
-                  horizontal={true}
-                  vertical={false}
-                  stroke="rgba(255,255,255,0.04)"
-                  strokeDasharray="0"
-                />
-                <XAxis
-                  dataKey="t"
-                  tick={{
-                    fill: "#475569",
-                    fontSize: 10,
-                    fontFamily: "JetBrains Mono, monospace",
-                  }}
-                  axisLine={false}
-                  tickLine={false}
-                  interval={0}
-                />
-                <YAxis
-                  domain={[0, 200]}
-                  tick={{
-                    fill: "#475569",
-                    fontSize: 10,
-                    fontFamily: "JetBrains Mono, monospace",
-                  }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={32}
-                  ticks={[0, 50, 100, 150, 200]}
-                />
-                <Tooltip
-                  content={<CustomTooltip />}
-                  cursor={{ stroke: "rgba(255,255,255,0.08)", strokeWidth: 1 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="v"
-                  stroke="#6366f1"
-                  strokeWidth={1.5}
-                  dot={false}
-                  activeDot={{ r: 3, fill: "#6366f1", strokeWidth: 0 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//         {/* Timeline chart */}
+//         <div
+//           className="rounded-lg border p-5"
+//           style={{
+//             backgroundColor: "#111118",
+//             borderColor: "rgba(255,255,255,0.06)",
+//             borderWidth: "0.5px",
+//           }}
+//         >
+//           <div className="flex items-center justify-between mb-5">
+//             <div>
+//               <div className="text-xs font-medium text-slate-400">Request timeline</div>
+//               <div className="text-[11px] text-slate-600 mt-0.5">
+//                 Requests per minute · last 60 minutes
+//               </div>
+//             </div>
+//             <div className="flex items-center gap-2">
+//               <div
+//                 className="w-3 h-0.5 rounded-full"
+//                 style={{ backgroundColor: "#6366f1" }}
+//               />
+//               <span className="text-[11px] text-slate-600">req/min</span>
+//             </div>
+//           </div>
+//           <div style={{ height: 200 }}>
+//             <ResponsiveContainer width="100%" height="100%">
+//               <LineChart
+//                 data={TIMELINE_DATA}
+//                 margin={{ top: 4, right: 8, bottom: 0, left: 0 }}
+//               >
+//                 <CartesianGrid
+//                   horizontal={true}
+//                   vertical={false}
+//                   stroke="rgba(255,255,255,0.04)"
+//                   strokeDasharray="0"
+//                 />
+//                 <XAxis
+//                   dataKey="t"
+//                   tick={{
+//                     fill: "#475569",
+//                     fontSize: 10,
+//                     fontFamily: "JetBrains Mono, monospace",
+//                   }}
+//                   axisLine={false}
+//                   tickLine={false}
+//                   interval={0}
+//                 />
+//                 <YAxis
+//                   domain={[0, 200]}
+//                   tick={{
+//                     fill: "#475569",
+//                     fontSize: 10,
+//                     fontFamily: "JetBrains Mono, monospace",
+//                   }}
+//                   axisLine={false}
+//                   tickLine={false}
+//                   width={32}
+//                   ticks={[0, 50, 100, 150, 200]}
+//                 />
+//                 <Tooltip
+//                   content={<CustomTooltip />}
+//                   cursor={{ stroke: "rgba(255,255,255,0.08)", strokeWidth: 1 }}
+//                 />
+//                 <Line
+//                   type="monotone"
+//                   dataKey="v"
+//                   stroke="#6366f1"
+//                   strokeWidth={1.5}
+//                   dot={false}
+//                   activeDot={{ r: 3, fill: "#6366f1", strokeWidth: 0 }}
+//                 />
+//               </LineChart>
+//             </ResponsiveContainer>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 // ─── Settings Page ────────────────────────────────────────────────────────────
 
-const Toggle = ({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) => (
-  <button
-    onClick={() => onChange(!checked)}
-    className="relative rounded-full transition-colors duration-200 cursor-pointer flex-shrink-0"
-    style={{
-      width: 32,
-      height: 18,
-      backgroundColor: checked ? "#6366f1" : "rgba(255,255,255,0.1)",
-      border: "0.5px solid rgba(255,255,255,0.1)",
-    }}
-  >
-    <span
-      className="absolute top-0.5 rounded-full transition-transform duration-200"
-      style={{
-        width: 14,
-        height: 14,
-        backgroundColor: "white",
-        transform: `translateX(${checked ? 15 : 1}px)`,
-        opacity: checked ? 1 : 0.6,
-      }}
-    />
-  </button>
-);
+// const Toggle = ({
+//   checked,
+//   onChange,
+// }: {
+//   checked: boolean;
+//   onChange: (v: boolean) => void;
+// }) => (
+//   <button
+//     onClick={() => onChange(!checked)}
+//     className="relative rounded-full transition-colors duration-200 cursor-pointer flex-shrink-0"
+//     style={{
+//       width: 32,
+//       height: 18,
+//       backgroundColor: checked ? "#6366f1" : "rgba(255,255,255,0.1)",
+//       border: "0.5px solid rgba(255,255,255,0.1)",
+//     }}
+//   >
+//     <span
+//       className="absolute top-0.5 rounded-full transition-transform duration-200"
+//       style={{
+//         width: 14,
+//         height: 14,
+//         backgroundColor: "white",
+//         transform: `translateX(${checked ? 15 : 1}px)`,
+//         opacity: checked ? 1 : 0.6,
+//       }}
+//     />
+//   </button>
+// );
 
-const SectionCard = ({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  children: React.ReactNode;
-}) => (
-  <div
-    className="rounded-lg border overflow-hidden"
-    style={{
-      backgroundColor: "#111118",
-      borderColor: "rgba(255,255,255,0.06)",
-      borderWidth: "0.5px",
-    }}
-  >
-    <div
-      className="px-5 py-4"
-      style={{ borderBottom: "0.5px solid rgba(255,255,255,0.06)" }}
-    >
-      <div className="text-sm font-medium text-slate-200">{title}</div>
-      {subtitle && <div className="text-xs text-slate-500 mt-0.5">{subtitle}</div>}
-    </div>
-    <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
-      {children}
-    </div>
-  </div>
-);
+// const SectionCard = ({
+//   title,
+//   subtitle,
+//   children,
+// }: {
+//   title: string;
+//   subtitle?: string;
+//   children: React.ReactNode;
+// }) => (
+//   <div
+//     className="rounded-lg border overflow-hidden"
+//     style={{
+//       backgroundColor: "#111118",
+//       borderColor: "rgba(255,255,255,0.06)",
+//       borderWidth: "0.5px",
+//     }}
+//   >
+//     <div
+//       className="px-5 py-4"
+//       style={{ borderBottom: "0.5px solid rgba(255,255,255,0.06)" }}
+//     >
+//       <div className="text-sm font-medium text-slate-200">{title}</div>
+//       {subtitle && <div className="text-xs text-slate-500 mt-0.5">{subtitle}</div>}
+//     </div>
+//     <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+//       {children}
+//     </div>
+//   </div>
+// );
 
-const SettingRow = ({
-  label,
-  description,
-  children,
-}: {
-  label: string;
-  description?: string;
-  children: React.ReactNode;
-}) => (
-  <div className="px-5 py-4 flex items-center justify-between gap-6">
-    <div>
-      <div className="text-sm text-slate-300">{label}</div>
-      {description && <div className="text-xs text-slate-600 mt-0.5">{description}</div>}
-    </div>
-    <div className="flex-shrink-0">{children}</div>
-  </div>
-);
+// const SettingRow = ({
+//   label,
+//   description,
+//   children,
+// }: {
+//   label: string;
+//   description?: string;
+//   children: React.ReactNode;
+// }) => (
+//   <div className="px-5 py-4 flex items-center justify-between gap-6">
+//     <div>
+//       <div className="text-sm text-slate-300">{label}</div>
+//       {description && <div className="text-xs text-slate-600 mt-0.5">{description}</div>}
+//     </div>
+//     <div className="flex-shrink-0">{children}</div>
+//   </div>
+// );
 
-const SettingsPage = () => {
-  const [webhookEnabled, setWebhookEnabled] = useState(true);
-  const [emailNotifs, setEmailNotifs] = useState(false);
-  const [autoEmbed, setAutoEmbed] = useState(true);
-  const [autoCite, setAutoCite] = useState(true);
-  const [dedupe, setDedupe] = useState(true);
-  const [wsReconnect, setWsReconnect] = useState(true);
-  const [retentionDays, setRetentionDays] = useState("90");
-  const [rateLimit, setRateLimit] = useState("60");
-  const [apiKey] = useState("pb_live_k9x2mf…4a8c");
-  const [keyCopied, setKeyCopied] = useState(false);
-  const [saved, setSaved] = useState(false);
+// const SettingsPage = () => {
+//   const [webhookEnabled, setWebhookEnabled] = useState(true);
+//   const [emailNotifs, setEmailNotifs] = useState(false);
+//   const [autoEmbed, setAutoEmbed] = useState(true);
+//   const [autoCite, setAutoCite] = useState(true);
+//   const [dedupe, setDedupe] = useState(true);
+//   const [wsReconnect, setWsReconnect] = useState(true);
+//   const [retentionDays, setRetentionDays] = useState("90");
+//   const [rateLimit, setRateLimit] = useState("60");
+//   const [apiKey] = useState("pb_live_k9x2mf…4a8c");
+//   const [keyCopied, setKeyCopied] = useState(false);
+//   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-  const copyKey = () => {
-    navigator.clipboard.writeText("pb_live_k9x2mf_full_key_4a8c").catch(() => {});
-    setKeyCopied(true);
-    setTimeout(() => setKeyCopied(false), 1500);
-  };
+//   const handleSave = () => {
+//     setSaved(true);
+//     setTimeout(() => setSaved(false), 2000);
+//   };
+//   const copyKey = () => {
+//     navigator.clipboard.writeText("pb_live_k9x2mf_full_key_4a8c").catch(() => {});
+//     setKeyCopied(true);
+//     setTimeout(() => setKeyCopied(false), 1500);
+//   };
 
-  return (
-    <div>
-      <PageHeader
-        title="Settings"
-        subtitle="API configuration, integrations, and preferences"
-        actions={
-          <Button variant="primary" size="sm" onClick={handleSave}>
-            {saved ? "✓ Saved" : "Save changes"}
-          </Button>
-        }
-      />
-      <div className="px-8 py-6 max-w-2xl space-y-5">
-        {/* API */}
-        <SectionCard title="API" subtitle="Credentials and rate limiting">
-          <SettingRow
-            label="API Key"
-            description="Use this key to authenticate requests to the PaperBase API"
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className="font-mono text-xs text-slate-400 bg-white/4 px-2.5 py-1.5 rounded border"
-                style={{ borderColor: "rgba(255,255,255,0.06)", borderWidth: "0.5px" }}
-              >
-                {apiKey}
-              </span>
-              <button
-                onClick={copyKey}
-                className="text-slate-600 hover:text-slate-400 transition-colors cursor-pointer p-1"
-              >
-                <Icon.Copy />
-              </button>
-              {keyCopied && <span className="text-[10px] text-indigo-400">Copied</span>}
-            </div>
-          </SettingRow>
-          <SettingRow
-            label="Rate limit"
-            description="Maximum API requests per minute per key"
-          >
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={rateLimit}
-                onChange={e => setRateLimit(e.target.value)}
-                className="w-16 text-center text-sm font-mono text-slate-200 rounded-md py-1 outline-none"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.06)",
-                  border: "0.5px solid rgba(255,255,255,0.1)",
-                }}
-              />
-              <span className="text-xs text-slate-600">req/min</span>
-            </div>
-          </SettingRow>
-        </SectionCard>
+//   return (
+//     <div>
+//       <PageHeader
+//         title="Settings"
+//         subtitle="API configuration, integrations, and preferences"
+//         actions={
+//           <Button variant="primary" size="sm" onClick={handleSave}>
+//             {saved ? "✓ Saved" : "Save changes"}
+//           </Button>
+//         }
+//       />
+//       <div className="px-8 py-6 max-w-2xl space-y-5">
+//         {/* API */}
+//         <SectionCard title="API" subtitle="Credentials and rate limiting">
+//           <SettingRow
+//             label="API Key"
+//             description="Use this key to authenticate requests to the PaperBase API"
+//           >
+//             <div className="flex items-center gap-2">
+//               <span
+//                 className="font-mono text-xs text-slate-400 bg-white/4 px-2.5 py-1.5 rounded border"
+//                 style={{ borderColor: "rgba(255,255,255,0.06)", borderWidth: "0.5px" }}
+//               >
+//                 {apiKey}
+//               </span>
+//               <button
+//                 onClick={copyKey}
+//                 className="text-slate-600 hover:text-slate-400 transition-colors cursor-pointer p-1"
+//               >
+//                 <Icon.Copy />
+//               </button>
+//               {keyCopied && <span className="text-[10px] text-indigo-400">Copied</span>}
+//             </div>
+//           </SettingRow>
+//           <SettingRow
+//             label="Rate limit"
+//             description="Maximum API requests per minute per key"
+//           >
+//             <div className="flex items-center gap-2">
+//               <input
+//                 type="number"
+//                 value={rateLimit}
+//                 onChange={e => setRateLimit(e.target.value)}
+//                 className="w-16 text-center text-sm font-mono text-slate-200 rounded-md py-1 outline-none"
+//                 style={{
+//                   backgroundColor: "rgba(255,255,255,0.06)",
+//                   border: "0.5px solid rgba(255,255,255,0.1)",
+//                 }}
+//               />
+//               <span className="text-xs text-slate-600">req/min</span>
+//             </div>
+//           </SettingRow>
+//         </SectionCard>
 
-        {/* Import */}
-        <SectionCard
-          title="Import pipeline"
-          subtitle="Behavior when papers are imported via the API"
-        >
-          <SettingRow
-            label="Auto-embed on import"
-            description="Generate and store sentence embeddings in pgvector automatically"
-          >
-            <Toggle checked={autoEmbed} onChange={setAutoEmbed} />
-          </SettingRow>
-          <SettingRow
-            label="Auto-parse citations"
-            description="Extract and resolve references from PDF text"
-          >
-            <Toggle checked={autoCite} onChange={setAutoCite} />
-          </SettingRow>
-          <SettingRow
-            label="Deduplicate by ArXiv ID"
-            description="Skip import if the paper already exists in the database"
-          >
-            <Toggle checked={dedupe} onChange={setDedupe} />
-          </SettingRow>
-        </SectionCard>
+//         {/* Import */}
+//         <SectionCard
+//           title="Import pipeline"
+//           subtitle="Behavior when papers are imported via the API"
+//         >
+//           <SettingRow
+//             label="Auto-embed on import"
+//             description="Generate and store sentence embeddings in pgvector automatically"
+//           >
+//             <Toggle checked={autoEmbed} onChange={setAutoEmbed} />
+//           </SettingRow>
+//           <SettingRow
+//             label="Auto-parse citations"
+//             description="Extract and resolve references from PDF text"
+//           >
+//             <Toggle checked={autoCite} onChange={setAutoCite} />
+//           </SettingRow>
+//           <SettingRow
+//             label="Deduplicate by ArXiv ID"
+//             description="Skip import if the paper already exists in the database"
+//           >
+//             <Toggle checked={dedupe} onChange={setDedupe} />
+//           </SettingRow>
+//         </SectionCard>
 
-        {/* Notifications */}
-        <SectionCard
-          title="Notifications"
-          subtitle="Where to send import and error events"
-        >
-          <SettingRow
-            label="Webhook on import complete"
-            description="POST to your configured endpoint when a paper finishes importing"
-          >
-            <Toggle checked={webhookEnabled} onChange={setWebhookEnabled} />
-          </SettingRow>
-          {webhookEnabled && (
-            <SettingRow label="Webhook URL" description="">
-              <input
-                type="url"
-                placeholder="https://hooks.example.com/paperbase"
-                className="text-sm text-slate-300 placeholder-slate-600 rounded-md px-3 py-1.5 outline-none"
-                style={{
-                  width: 260,
-                  backgroundColor: "rgba(255,255,255,0.04)",
-                  border: "0.5px solid rgba(255,255,255,0.08)",
-                }}
-              />
-            </SettingRow>
-          )}
-          <SettingRow
-            label="Email on task failure"
-            description="Send an email via Resend when a Celery task fails"
-          >
-            <Toggle checked={emailNotifs} onChange={setEmailNotifs} />
-          </SettingRow>
-        </SectionCard>
+//         {/* Notifications */}
+//         <SectionCard
+//           title="Notifications"
+//           subtitle="Where to send import and error events"
+//         >
+//           <SettingRow
+//             label="Webhook on import complete"
+//             description="POST to your configured endpoint when a paper finishes importing"
+//           >
+//             <Toggle checked={webhookEnabled} onChange={setWebhookEnabled} />
+//           </SettingRow>
+//           {webhookEnabled && (
+//             <SettingRow label="Webhook URL" description="">
+//               <input
+//                 type="url"
+//                 placeholder="https://hooks.example.com/paperbase"
+//                 className="text-sm text-slate-300 placeholder-slate-600 rounded-md px-3 py-1.5 outline-none"
+//                 style={{
+//                   width: 260,
+//                   backgroundColor: "rgba(255,255,255,0.04)",
+//                   border: "0.5px solid rgba(255,255,255,0.08)",
+//                 }}
+//               />
+//             </SettingRow>
+//           )}
+//           <SettingRow
+//             label="Email on task failure"
+//             description="Send an email via Resend when a Celery task fails"
+//           >
+//             <Toggle checked={emailNotifs} onChange={setEmailNotifs} />
+//           </SettingRow>
+//         </SectionCard>
 
-        {/* WebSocket */}
-        <SectionCard title="WebSocket" subtitle="Real-time task status streaming">
-          <SettingRow
-            label="Auto-reconnect"
-            description="Attempt to reconnect automatically if the WebSocket connection drops"
-          >
-            <Toggle checked={wsReconnect} onChange={setWsReconnect} />
-          </SettingRow>
-        </SectionCard>
+//         {/* WebSocket */}
+//         <SectionCard title="WebSocket" subtitle="Real-time task status streaming">
+//           <SettingRow
+//             label="Auto-reconnect"
+//             description="Attempt to reconnect automatically if the WebSocket connection drops"
+//           >
+//             <Toggle checked={wsReconnect} onChange={setWsReconnect} />
+//           </SettingRow>
+//         </SectionCard>
 
-        {/* Data */}
-        <SectionCard title="Data retention" subtitle="Storage and cleanup policies">
-          <SettingRow
-            label="Task log retention"
-            description="Delete completed task records older than this many days"
-          >
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={retentionDays}
-                onChange={e => setRetentionDays(e.target.value)}
-                className="w-16 text-center text-sm font-mono text-slate-200 rounded-md py-1 outline-none"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.06)",
-                  border: "0.5px solid rgba(255,255,255,0.1)",
-                }}
-              />
-              <span className="text-xs text-slate-600">days</span>
-            </div>
-          </SettingRow>
-          <div className="px-5 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-red-400">Danger zone</div>
-                <div className="text-xs text-slate-600 mt-0.5">
-                  Permanently delete all papers and task history
-                </div>
-              </div>
-              <button
-                className="px-3 py-1.5 rounded text-xs font-medium cursor-pointer transition-colors text-red-400 border"
-                style={{
-                  borderColor: "rgba(239,68,68,0.2)",
-                  borderWidth: "0.5px",
-                  backgroundColor: "rgba(239,68,68,0.05)",
-                }}
-                onMouseEnter={e =>
-                  ((e.currentTarget as HTMLElement).style.backgroundColor =
-                    "rgba(239,68,68,0.1)")
-                }
-                onMouseLeave={e =>
-                  ((e.currentTarget as HTMLElement).style.backgroundColor =
-                    "rgba(239,68,68,0.05)")
-                }
-              >
-                Clear library
-              </button>
-            </div>
-          </div>
-        </SectionCard>
-      </div>
-    </div>
-  );
-};
+//         {/* Data */}
+//         <SectionCard title="Data retention" subtitle="Storage and cleanup policies">
+//           <SettingRow
+//             label="Task log retention"
+//             description="Delete completed task records older than this many days"
+//           >
+//             <div className="flex items-center gap-2">
+//               <input
+//                 type="number"
+//                 value={retentionDays}
+//                 onChange={e => setRetentionDays(e.target.value)}
+//                 className="w-16 text-center text-sm font-mono text-slate-200 rounded-md py-1 outline-none"
+//                 style={{
+//                   backgroundColor: "rgba(255,255,255,0.06)",
+//                   border: "0.5px solid rgba(255,255,255,0.1)",
+//                 }}
+//               />
+//               <span className="text-xs text-slate-600">days</span>
+//             </div>
+//           </SettingRow>
+//           <div className="px-5 py-4">
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <div className="text-sm text-red-400">Danger zone</div>
+//                 <div className="text-xs text-slate-600 mt-0.5">
+//                   Permanently delete all papers and task history
+//                 </div>
+//               </div>
+//               <button
+//                 className="px-3 py-1.5 rounded text-xs font-medium cursor-pointer transition-colors text-red-400 border"
+//                 style={{
+//                   borderColor: "rgba(239,68,68,0.2)",
+//                   borderWidth: "0.5px",
+//                   backgroundColor: "rgba(239,68,68,0.05)",
+//                 }}
+//                 onMouseEnter={e =>
+//                   ((e.currentTarget as HTMLElement).style.backgroundColor =
+//                     "rgba(239,68,68,0.1)")
+//                 }
+//                 onMouseLeave={e =>
+//                   ((e.currentTarget as HTMLElement).style.backgroundColor =
+//                     "rgba(239,68,68,0.05)")
+//                 }
+//               >
+//                 Clear library
+//               </button>
+//             </div>
+//           </div>
+//         </SectionCard>
+//       </div>
+//     </div>
+//   );
+// };
 
 // ─── App Root ─────────────────────────────────────────────────────────────────
 
@@ -886,7 +886,6 @@ import { Icon } from "./ui/icons";
 import { highlight } from "./utils/utils";
 import { StatusChip } from "./components/StatusChip";
 import { ServiceChip } from "./components/ServiceChip";
-import PageHeader from "./components/Pageheader";
 import { Badge } from "./components/Badge";
 import { Stat } from "./components/Stat";
 import { Shell } from "./layouts/Shell";
@@ -907,8 +906,8 @@ export default function App() {
           <Route path="tasks" element={<Tasks />} />
           {/*
           <Route path="search" element={<SearchPage />} /> */}
-          <Route path="metrics" element={<MetricsPage />} />
-          <Route path="settings" element={<SettingsPage />} />
+          {/* <Route path="metrics" element={<MetricsPage />} />
+          <Route path="settings" element={<SettingsPage />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>
