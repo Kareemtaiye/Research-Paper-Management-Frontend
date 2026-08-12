@@ -1,4 +1,4 @@
-import PageHeader from "@/components/Pageheader";
+import PageHeader from "@/components/PageHeader";
 import { Stat } from "@/components/Stat";
 import { TaskStatusChip } from "@/components/TaskStatusChip";
 import { Icon } from "@/ui/icons";

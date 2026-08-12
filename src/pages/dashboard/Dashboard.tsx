@@ -1,6 +1,6 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
-import PageHeader from "@/components/Pageheader";
+import PageHeader from "@/components/PageHeader";
 import { Stat } from "@/components/Stat";
 import { StatusChip } from "@/components/StatusChip";
 import { Paper } from "@/types/Paper";
