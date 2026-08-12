@@ -1,0 +1,54 @@
+src/
+├── components/
+│   ├── ui/                     ← pure reusable UI primitives
+│   │   ├── icons.tsx
+│   │   ├── button.tsx
+│   │   ├── chip.tsx
+│   │   ├── modal.tsx
+│   │   └── input.tsx
+│   │
+│   ├── layout/                 ← app shell, not feature-specific
+│   │   ├── Shell.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── Topbar.tsx
+│   │
+│   └── features/               ← feature-specific components
+│       ├── papers/
+│       │   ├── PaperRow.tsx
+│       │   ├── PaperDetail.tsx
+│       │   ├── ImportModal.tsx
+│       │   └── PapersList.tsx
+│       ├── tasks/
+│       │   ├── TaskRow.tsx
+│       │   ├── TaskProgress.tsx
+│       │   └── TasksPanel.tsx
+│       ├── search/
+│       │   ├── SearchBar.tsx
+│       │   └── SearchResult.tsx
+│       └── metrics/
+│           ├── StatCard.tsx
+│           ├── HealthList.tsx
+│           └── RequestChart.tsx
+│
+├── pages/                      ← just compose feature components
+│   ├── DashboardPage.tsx
+│   ├── PapersPage.tsx
+│   ├── SearchPage.tsx
+│   ├── TasksPage.tsx
+│   ├── MetricsPage.tsx
+│   └── SettingsPage.tsx
+│
+├── hooks/                      ← custom React hooks
+│   ├── useWebSocket.ts
+│   ├── usePapers.ts
+│   └── useTasks.ts
+│
+├── services/                   ← API calls
+│   ├── api.ts
+│   ├── papers.ts
+│   └── auth.ts
+│
+├── types/                      ← TypeScript types
+│   └── index.ts
+│
+└── App.tsx
