@@ -74,7 +74,6 @@ export function Tasks() {
   ];
 
   const token = JSON.parse(localStorage.getItem("token") || "");
-
   const filtered = filter === "all" ? tasks : tasks.filter(t => t.status === filter);
   const running = tasks.filter(t => t.status === "running").length;
   const queued = tasks.filter(t => t.status === "queued").length;
