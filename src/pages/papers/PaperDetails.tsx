@@ -69,7 +69,6 @@ function PaperDetails() {
   };
 
   const token = JSON.parse(localStorage.getItem("token"));
-
   async function fetchPaperDetails() {
     setLoading(true);
     try {
