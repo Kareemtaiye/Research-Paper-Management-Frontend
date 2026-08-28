@@ -1,8 +1,8 @@
-type TaskStatus = "running" | "completed" | "failed" | "queued";
+type TaskStatus = "processing" | "completed" | "failed" | "queued";
 
 export function TaskStatusChip({ status }: { status: TaskStatus }) {
   const map: Record<TaskStatus, { label: string; color: string; dot: string }> = {
-    running: {
+    processing: {
       label: "Running",
       color: "text-blue-400 bg-blue-400/8 border-blue-400/20",
       dot: "bg-blue-400 ws-pulse",
@@ -23,14 +23,13 @@ export function TaskStatusChip({ status }: { status: TaskStatus }) {
       dot: "bg-slate-400",
     },
   };
-  const { label, color, dot } = map[status];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${color}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${map[status]?.color || ""}`}
       style={{ borderWidth: "0.5px" }}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-      {label}
+      <span className={`w-1.5 h-1.5 rounded-full ${map[status]?.dot || ""}`} />
+      {map[status]?.label || "-"}
     </span>
   );
 }
