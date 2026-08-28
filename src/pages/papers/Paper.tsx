@@ -101,6 +101,7 @@ function Papers() {
   }, [papers, search, statusFilter, catFilter, sortBy, sortDir]);
 
   const paged = filtered.slice((page - 1) * perPage, page * perPage);
+
   const toggleSort = (col: typeof sortBy) => {
     if (sortBy === col) setSortDir(d => (d === "asc" ? "desc" : "asc"));
     else {
