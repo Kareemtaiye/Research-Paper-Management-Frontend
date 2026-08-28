@@ -116,7 +116,6 @@ function Dashboard() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const token = JSON.parse(localStorage.getItem("token") || "null");
-
   async function fetchRecentPapers() {
     setLoading(true);
     try {

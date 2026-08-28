@@ -23,6 +23,7 @@ export function TaskStatusChip({ status }: { status: TaskStatus }) {
       dot: "bg-slate-400",
     },
   };
+
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${map[status]?.color || ""}`}
