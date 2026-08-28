@@ -128,8 +128,9 @@ function Dashboard() {
       });
 
       setRecentPapers(res.data.data.data);
-    } catch (err) {
-      console.error("Failed to fetch recent papers:", err);
+    } catch (err: any) {
+      console.log("Err:", err.response.data);
+      // console.error("Failed to fetch recent papers:", err);
     } finally {
       setLoading(false);
     }
@@ -151,14 +152,31 @@ function Dashboard() {
   const failed = recentPapers?.filter(p => p.status === "failed").length;
   const activeTasks = TASKS.filter(t => t.status === "running");
 
-  const handleImport = () => {
+  async function handleArxivImport() {
     if (!arxivInput.trim()) return;
     setImporting(true);
-    setTimeout(() => {
+
+    try {
+      // Simulate an API call to fetch recent papers
+      const res = await axios.post(
+        `${BASE_API_URL}/papers-import/import/arxiv`,
+        { arxiv_url: arxivInput },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      // setRecentPapers(res.data.data.data);
+      fetchRecentPapers();
+    } catch (err: any) {
+      console.log("Err:", err.response.data);
+      // console.error("Failed to fetch recent papers:", err);
+    } finally {
       setImporting(false);
-      setArxivInput("");
-    }, 2200);
-  };
+    }
+  }
 
   return (
     <div>
@@ -312,13 +330,13 @@ function Dashboard() {
                   placeholder="2401.00001 or arxiv.org/abs/..."
                   value={arxivInput}
                   onChange={e => setArxivInput(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleImport()}
+                  onKeyDown={e => e.key === "Enter" && handleArxivImport()}
                 />
               </div>
               <Button
                 variant="primary"
                 className="w-full"
-                onClick={handleImport}
+                onClick={handleArxivImport}
                 disabled={importing || !arxivInput.trim()}
               >
                 {importing ? (
