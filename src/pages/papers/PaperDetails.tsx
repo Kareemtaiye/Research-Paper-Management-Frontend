@@ -80,8 +80,8 @@ function PaperDetails() {
       });
 
       setPaper(res.data.data);
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      console.log("Err:", err.response.data);
     } finally {
       setLoading(false);
     }

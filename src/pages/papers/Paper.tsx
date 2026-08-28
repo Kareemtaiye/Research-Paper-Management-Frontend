@@ -41,8 +41,8 @@ function Papers() {
       setCurrentPage(res.data.data.page);
       setperPage(res.data.data.per_page);
       setTotalPages(res.data.data.total);
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      console.log("Err:", err.response.data);
     } finally {
       setLoading(false);
     }
