@@ -876,7 +876,7 @@ const SERVICES = [
 
 // ─── App Root ─────────────────────────────────────────────────────────────────
 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Register from "./pages/auth/Register";
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -896,11 +896,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* <Route path="/login" element={<AuthPage mode="login" />} /> */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+
+        <Route index element={<Navigate to="/dashboard" replace />} />
+
         <Route path="/" element={<Shell />}>
-          <Route index path="dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="papers" element={<Papers />} />
           <Route path="papers/:id" element={<PaperDetails />} />
           <Route path="tasks" element={<Tasks />} />
