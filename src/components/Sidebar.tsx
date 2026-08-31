@@ -3,117 +3,24 @@ import Divider from "./Divider";
 import WsIndicator from "./WsIndicator";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { usePapers } from "@/context/PapersContext";
+import { useTasks } from "@/context/TasksContext";
 
-const TASKS: Task[] = [
-  {
-    id: "task-001",
-    type: "import",
-    paper_id: "3",
-    paper_title: "Retrieval-Augmented Generation with Structured Knowledge Graphs",
-    status: "running",
-    step: "Extracting citations",
-    progress: 62,
-    started_at: "2024-06-06T10:46:00Z",
-    duration: "2m 14s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-002",
-    type: "pdf",
-    paper_id: "7",
-    paper_title: "Vision Language Models for Scientific Figure Understanding",
-    status: "running",
-    step: "Parsing PDF metadata",
-    progress: 14,
-    started_at: "2024-06-06T10:47:13Z",
-    duration: "47s",
-    worker: "celery@worker-2",
-  },
-  {
-    id: "task-003",
-    type: "embed",
-    paper_id: "5",
-    paper_title: "Mixture of Experts: Dynamic Routing for Efficient Language Modeling",
-    status: "queued",
-    step: "Waiting for worker",
-    progress: 0,
-    started_at: "2024-06-06T10:47:55Z",
-    duration: "—",
-    worker: "—",
-  },
-  {
-    id: "task-004",
-    type: "index",
-    paper_id: "8",
-    paper_title: "Speculative Decoding with Draft Model Ensembles",
-    status: "completed",
-    step: "Full-text index built",
-    progress: 100,
-    started_at: "2024-06-06T09:58:10Z",
-    duration: "1m 43s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-005",
-    type: "citation",
-    paper_id: "2",
-    paper_title: "Scaling Laws for Neural Language Models Under Distribution Shift",
-    status: "completed",
-    step: "47 references parsed",
-    progress: 100,
-    started_at: "2024-06-06T09:31:05Z",
-    duration: "58s",
-    worker: "celery@worker-3",
-  },
-  {
-    id: "task-006",
-    type: "import",
-    paper_id: "6",
-    paper_title: "Reinforcement Learning from Human Feedback: An Empirical Analysis",
-    status: "failed",
-    step: "PDF download failed: 403 Forbidden",
-    progress: 18,
-    started_at: "2024-06-06T08:30:01Z",
-    duration: "2m 14s",
-    worker: "celery@worker-2",
-  },
-  {
-    id: "task-007",
-    type: "embed",
-    paper_id: "4",
-    paper_title: "Constitutional AI: Harmlessness from AI Feedback at Scale",
-    status: "completed",
-    step: "Embeddings stored in pgvector",
-    progress: 100,
-    started_at: "2024-06-06T08:12:30Z",
-    duration: "3m 02s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-008",
-    type: "pdf",
-    paper_id: "1",
-    paper_title: "Attention Is All You Need: Revisited for Long-Context Transformers",
-    status: "completed",
-    step: "Text extracted · 18,432 tokens",
-    progress: 100,
-    started_at: "2024-06-05T17:44:11Z",
-    duration: "1m 07s",
-    worker: "celery@worker-3",
-  },
-];
-
-function Sidebar({ wsConnected }: { wsConnected: boolean }) {
+function Sidebar({ onLogout, user }: { onLogout: () => void; user: any }) {
   const [currPage, setCurrPage] = useState("dashboard");
+  const { websocketConnected } = useAuth();
   const nav = useNavigate();
+  const { papers } = usePapers();
+  const { tasks } = useTasks();
 
-  const runningTasks = TASKS.filter(
-    t => t.status === "running" || t.status === "queued",
+  const runningTasks = tasks.filter(
+    t => t.status === "processing" || t.status === "queued",
   ).length;
 
   const sideNav = [
     { id: "dashboard", label: "Dashboard", Icon: Icon.Dashboard },
-    { id: "papers", label: "Papers", Icon: Icon.Papers, count: "PAPERS.length" },
+    { id: "papers", label: "Papers", Icon: Icon.Papers, count: papers.length },
     {
       id: "tasks",
       label: "Tasks",
@@ -245,11 +152,11 @@ function Sidebar({ wsConnected }: { wsConnected: boolean }) {
 
       {/* Footer */}
       <div className="px-3 pb-4 space-y-2">
-        <WsIndicator connected={wsConnected} />
+        <WsIndicator connected={websocketConnected} />
         <Divider />
         <Link to="/login">
           <button
-            // onClick={() => setPage("login")}
+            onClick={() => onLogout()}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-600 hover:text-slate-400 hover:bg-white/4 transition-all cursor-pointer"
           >
             <Icon.User />
