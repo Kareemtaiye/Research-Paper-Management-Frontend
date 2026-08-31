@@ -4,50 +4,37 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Input from "@/components/Input";
 import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
 
 const API_BASE_URL = "http://localhost/api/v1";
 
 function Login() {
+  const { login, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const nav = useNavigate();
 
-  type UserLoginData = {
-    email: string;
-    created_at: string;
-    id: string;
-    role: string;
-  };
-
-  let LoginUser: UserLoginData;
+  // type UserLoginData = {
+  //   email: string;
+  //   created_at: string;
+  //   id: string;
+  //   role: string;
+  // };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
     if (!email || !password) {
       setError("All fields are required.");
       return;
     }
 
     try {
-      setLoading(true);
-
-      const formdata = new FormData();
-      formdata.append("username", email);
-      formdata.append("password", password);
-
-      const res = await axios.post(`${API_BASE_URL}/auth/token`, formdata, {});
-      LoginUser = res.data;
-
-      localStorage.setItem("token", JSON.stringify(res.data.access_token));
-      nav("/dashboard");
+      const res = await login(email, password);
+      // LoginUser = res;
     } catch (err) {
       console.log(err);
-    } finally {
-      setLoading(false);
     }
   }
 

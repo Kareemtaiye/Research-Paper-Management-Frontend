@@ -1,5 +1,6 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import { usePapers } from "@/context/PapersContext";
 import { Paper, PaperStatus } from "@/types/Paper";
 import { Icon, IconSpin } from "@/ui/icons";
 import { exportCSV } from "@/utils/utils";
@@ -7,7 +8,7 @@ import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const BASE_API_URL = "http://localhost/api/v1";
+export const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 function Papers() {
   const [search, setSearch] = useState("");
@@ -20,33 +21,44 @@ function Papers() {
   const [exporting, setExporting] = useState(false);
   const nav = useNavigate();
 
-  const [loading, setLoading] = useState<boolean>(false);
-  const [papers, setPapers] = useState<Paper[]>([]);
-  const [page, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const [perPage, setperPage] = useState<number>(5);
+  // const [loading, setLoading] = useState<boolean>(false);
+  // const [papers, setPapers] = useState<Paper[]>([]);
+  // const [page, setCurrentPage] = useState(1);
+  // const [totalPages, setTotalPages] = useState<number>(0);
+  // const [perPage, setperPage] = useState<number>(5);
 
-  const token = JSON.parse(localStorage.getItem("token"));
+  const {
+    loading,
+    fetchAllPapers,
+    updatePaper,
+    setCurrentPage,
+    papers,
+    page,
+    totalPages,
+    perPage,
+  } = usePapers();
 
-  async function fetchAllPapers() {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${BASE_API_URL}/papers/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const token = localStorage.getItem("access_token");
 
-      setPapers(res.data.data.data);
-      setCurrentPage(res.data.data.page);
-      setperPage(res.data.data.per_page);
-      setTotalPages(res.data.data.total);
-    } catch (err: any) {
-      console.log("Err:", err.response.data);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // async function fetchAllPapers() {
+  //   setLoading(true);
+  //   try {
+  //     const res = await axios.get(`${BASE_API_URL}/papers/me`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     setPapers(res.data.data.data);
+  //     setCurrentPage(res.data.data.page);
+  //     setperPage(res.data.data.per_page);
+  //     setTotalPages(res.data.data.total);
+  //   } catch (err: any) {
+  //     console.log("Err:", err.response.data);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   useEffect(function () {
     fetchAllPapers();

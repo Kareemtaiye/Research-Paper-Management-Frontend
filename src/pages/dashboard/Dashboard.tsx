@@ -10,130 +10,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BASE_API_URL } from "../papers/Paper";
 import axios from "axios";
-
-const TASKS: Task[] = [
-  {
-    id: "task-001",
-    type: "import",
-    paper_id: "3",
-    paper_title: "Retrieval-Augmented Generation with Structured Knowledge Graphs",
-    status: "running",
-    step: "Extracting citations",
-    progress: 62,
-    started_at: "2024-06-06T10:46:00Z",
-    duration: "2m 14s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-002",
-    type: "pdf",
-    paper_id: "7",
-    paper_title: "Vision Language Models for Scientific Figure Understanding",
-    status: "running",
-    step: "Parsing PDF metadata",
-    progress: 14,
-    started_at: "2024-06-06T10:47:13Z",
-    duration: "47s",
-    worker: "celery@worker-2",
-  },
-  {
-    id: "task-003",
-    type: "embed",
-    paper_id: "5",
-    paper_title: "Mixture of Experts: Dynamic Routing for Efficient Language Modeling",
-    status: "queued",
-    step: "Waiting for worker",
-    progress: 0,
-    started_at: "2024-06-06T10:47:55Z",
-    duration: "—",
-    worker: "—",
-  },
-  {
-    id: "task-004",
-    type: "index",
-    paper_id: "8",
-    paper_title: "Speculative Decoding with Draft Model Ensembles",
-    status: "completed",
-    step: "Full-text index built",
-    progress: 100,
-    started_at: "2024-06-06T09:58:10Z",
-    duration: "1m 43s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-005",
-    type: "citation",
-    paper_id: "2",
-    paper_title: "Scaling Laws for Neural Language Models Under Distribution Shift",
-    status: "completed",
-    step: "47 references parsed",
-    progress: 100,
-    started_at: "2024-06-06T09:31:05Z",
-    duration: "58s",
-    worker: "celery@worker-3",
-  },
-  {
-    id: "task-006",
-    type: "import",
-    paper_id: "6",
-    paper_title: "Reinforcement Learning from Human Feedback: An Empirical Analysis",
-    status: "failed",
-    step: "PDF download failed: 403 Forbidden",
-    progress: 18,
-    started_at: "2024-06-06T08:30:01Z",
-    duration: "2m 14s",
-    worker: "celery@worker-2",
-  },
-  {
-    id: "task-007",
-    type: "embed",
-    paper_id: "4",
-    paper_title: "Constitutional AI: Harmlessness from AI Feedback at Scale",
-    status: "completed",
-    step: "Embeddings stored in pgvector",
-    progress: 100,
-    started_at: "2024-06-06T08:12:30Z",
-    duration: "3m 02s",
-    worker: "celery@worker-1",
-  },
-  {
-    id: "task-008",
-    type: "pdf",
-    paper_id: "1",
-    paper_title: "Attention Is All You Need: Revisited for Long-Context Transformers",
-    status: "completed",
-    step: "Text extracted · 18,432 tokens",
-    progress: 100,
-    started_at: "2024-06-05T17:44:11Z",
-    duration: "1m 07s",
-    worker: "celery@worker-3",
-  },
-];
+import { useTasks } from "@/context/TasksContext";
+import { usePapers } from "@/context/PapersContext";
 
 function Dashboard() {
   /* Beginning changes */
-  const [recentPapers, setRecentPapers] = useState<Paper[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { tasks } = useTasks();
+  const { recentPapers, loading, fetchAllPapers, fetchRecentPapers } = usePapers();
 
-  const token = JSON.parse(localStorage.getItem("token") || "null");
-  async function fetchRecentPapers() {
-    setLoading(true);
-    try {
-      // Simulate an API call to fetch recent papers
-      const res = await axios.get(`${BASE_API_URL}/papers/recent`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setRecentPapers(res.data.data.data);
-    } catch (err: any) {
-      console.log("Err:", err.response.data);
-      // console.error("Failed to fetch recent papers:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const token = localStorage.getItem("access_token") || "null";
 
   useEffect(() => {
     fetchRecentPapers();
@@ -146,10 +31,10 @@ function Dashboard() {
   const nav = useNavigate();
   const completed = recentPapers?.filter(p => p.status === "completed").length;
   const processing = recentPapers?.filter(
-    p => p.status === "processing" || p.status === "queued",
+    p => p.status === "processing" || p.status === "queued" || p.status == "pending",
   ).length;
   const failed = recentPapers?.filter(p => p.status === "failed").length;
-  const activeTasks = TASKS.filter(t => t.status === "running");
+  const activeTasks = tasks.filter(t => t.status === "running");
 
   async function handleArxivImport() {
     if (!arxivInput.trim()) return;
@@ -169,6 +54,7 @@ function Dashboard() {
 
       // setRecentPapers(res.data.data.data);
       fetchRecentPapers();
+      fetchAllPapers();
     } catch (err: any) {
       console.log("Err:", err.response.data);
       // console.error("Failed to fetch recent papers:", err);

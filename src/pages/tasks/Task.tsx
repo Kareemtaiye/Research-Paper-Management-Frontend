@@ -1,8 +1,8 @@
 import PageHeader from "@/components/PageHeader";
 import { Stat } from "@/components/Stat";
 import { TaskStatusChip } from "@/components/TaskStatusChip";
+import { useTasks } from "@/context/TasksContext";
 import { Icon, IconSpin } from "@/ui/icons";
-import axios from "axios";
 import { useEffect, useState } from "react";
 
 function formatDuration(createdAt: string, completedAt: string | null): string {
@@ -23,18 +23,13 @@ function formatDuration(createdAt: string, completedAt: string | null): string {
     : `${duration}s`;
 }
 
-// Task ID: show first 8 chars
-// const shortTaskId = task.task_id.substring(0, 8) + "…";
-
-// // Worker: remove "celery@" prefix, truncate hash
-// const workerDisplay = task.worker_name?.replace("celery@", "").substring(0, 12) + "…";
-
 type TaskStatus = "running" | "completed" | "failed" | "queued";
 
 export const BASE_API_URL = "http://localhost/api/v1";
 
 interface Task {
   id: string;
+  task_id: string;
   task_type:
     | "fetch_paper_metadata"
     | "send_paper_notification"
@@ -63,8 +58,9 @@ const TASK_TYPE_LABELS: Record<Task["task_type"], string> = {
 
 export function Tasks() {
   const [filter, setFilter] = useState<TaskStatus | "all">("all");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  // const [loading, setLoading] = useState<boolean>(false);
+  // const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, fetchAllTasks, loading } = useTasks();
   const statuses: (TaskStatus | "all")[] = [
     "all",
     "running",
@@ -73,32 +69,64 @@ export function Tasks() {
     "failed",
   ];
 
-  const token = JSON.parse(localStorage.getItem("token") || "");
+  // const token = JSON.parse(localStorage.getItem("token") || "");
   const filtered = filter === "all" ? tasks : tasks.filter(t => t.status === filter);
-  const running = tasks.filter(t => t.status === "running").length;
+  const running = tasks.filter(t => t.status === "processing").length;
   const queued = tasks.filter(t => t.status === "queued").length;
   const completed = tasks.filter(t => t.status === "completed").length;
   const failed = tasks.filter(t => t.status === "failed").length;
 
-  async function fetchAllTaksk() {
-    setLoading(true);
-    const res = await axios.get(`${BASE_API_URL}/tasks`, {
-      headers: {
-        Authorization: `bearer ${token}`,
-      },
-    });
-    setTasks(res.data.data.data);
-    try {
-    } catch (err: any) {
-      console.log("Err:", err.response.data);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // async function fetchAllTaksk() {
+  //   setLoading(true);
+  //   const res = await axios.get(`${BASE_API_URL}/tasks`, {
+  //     headers: {
+  //       Authorization: `bearer ${token}`,
+  //     },
+  //   });
+  //   setTasks(res.data.data.data);
+  //   try {
+  //   } catch (err: any) {
+  //     console.log("Err:", err.response.data);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   useEffect(function () {
-    fetchAllTaksk();
+    fetchAllTasks();
   }, []);
+
+  // Handle incoming WebSocket messages
+  // const handleMessage = useCallback((data: any) => {
+  //   console.log("WS message received:", data); // confirm event arrives
+  //   console.log("Current tasks:", tasks); // check if tasks are there
+  //   console.log("Looking for task_id:", data.task_id); // confirm ID
+  //   if (data.event === "task_update") {
+  //     setTasks(prev =>
+  //       prev.map(task =>
+  //         task.task_id === data.task_id
+  //           ? {
+  //               ...task,
+  //               status: data.status,
+  //               progress: data.progress ?? task.progress,
+  //               stage_message: data.stage_message ?? task.stage_message,
+  //               worker_name: data.worker_name ?? task.worker_name,
+  //               completed_at:
+  //                 data.status === "completed" || data.status === "failed"
+  //                   ? new Date().toISOString()
+  //                   : task.completed_at,
+  //             }
+  //           : task,
+  //       ),
+  //     );
+  //   }
+
+  //   if (data.event === "paper_completed") {
+  //     // refresh papers list or update specific paper
+  //   }
+  // }, []);
+
+  // useWebSocket("aae97710-8c66-49ac-8f74-4e782a4f8ac4", token, handleMessage);
 
   return (
     <div>
@@ -250,8 +278,10 @@ export function Tasks() {
                     </td>
                     <td className="px-4 py-3.5 max-w-[200px]">
                       <div className="text-xs text-slate-400 line-clamp-1">
-                        {task.result && JSON.parse(task.result).title !== null
-                          ? JSON.parse(task.result).title
+                        {task.result
+                          ? typeof task.result === "string"
+                            ? JSON.parse(task.result).title
+                            : task.result.title
                           : "-"}
                       </div>
                     </td>
