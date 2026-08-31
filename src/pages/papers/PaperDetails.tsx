@@ -7,8 +7,11 @@ import { formatDate, formatTime } from "@/utils/utils";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { BASE_API_URL } from "./Paper";
+
 import { Paper } from "@/types/Paper";
+import { useAuth } from "@/context/AuthContext";
+
+const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 const TIMELINE_EVENTS = [
   {
@@ -52,9 +55,7 @@ const TIMELINE_EVENTS = [
 function PaperDetails() {
   const [loading, setLoading] = useState<boolean>(false);
   const [paper, setPaper] = useState<Paper>({});
-  const [page, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const [perPage, setperPage] = useState<number>(5);
+  const { token } = useAuth();
 
   const queryParams = useParams();
   const paperId = queryParams.id;
@@ -68,7 +69,6 @@ function PaperDetails() {
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const token = JSON.parse(localStorage.getItem("token"));
   async function fetchPaperDetails() {
     setLoading(true);
     try {
