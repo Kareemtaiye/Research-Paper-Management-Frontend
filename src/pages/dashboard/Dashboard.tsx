@@ -3,15 +3,15 @@ import Input from "@/components/Input";
 import PageHeader from "@/components/PageHeader";
 import { Stat } from "@/components/Stat";
 import { StatusChip } from "@/components/StatusChip";
-import { Paper } from "@/types/Paper";
 import { Icon, IconSpin } from "@/ui/icons";
 import { formatDate } from "@/utils/utils";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BASE_API_URL } from "../papers/Paper";
 import axios from "axios";
 import { useTasks } from "@/context/TasksContext";
 import { usePapers } from "@/context/PapersContext";
+
+const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 function Dashboard() {
   /* Beginning changes */
@@ -41,7 +41,6 @@ function Dashboard() {
     setImporting(true);
 
     try {
-      // Simulate an API call to fetch recent papers
       const res = await axios.post(
         `${BASE_API_URL}/papers-import/import/arxiv`,
         { arxiv_url: arxivInput },

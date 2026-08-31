@@ -1,14 +1,11 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import { usePapers } from "@/context/PapersContext";
-import { Paper, PaperStatus } from "@/types/Paper";
+import { PaperStatus } from "@/types/Paper";
 import { Icon, IconSpin } from "@/ui/icons";
 import { exportCSV } from "@/utils/utils";
-import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-export const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 function Papers() {
   const [search, setSearch] = useState("");
