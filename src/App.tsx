@@ -888,30 +888,38 @@ import { StatusChip } from "./components/StatusChip";
 import { ServiceChip } from "./components/ServiceChip";
 import { Badge } from "./components/Badge";
 import { Stat } from "./components/Stat";
-import { Shell } from "./layouts/Shell";
+import Shell from "@/layouts/Shell";
 import PaperDetails from "./pages/papers/PaperDetails";
 import { Tasks } from "./pages/tasks/Task";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-
-        <Route index element={<Navigate to="/dashboard" replace />} />
-
-        <Route path="/" element={<Shell />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="papers" element={<Papers />} />
-          <Route path="papers/:id" element={<PaperDetails />} />
-          <Route path="tasks" element={<Tasks />} />
-          {/*
-          <Route path="search" element={<SearchPage />} /> */}
-          {/* <Route path="metrics" element={<MetricsPage />} />
-          <Route path="settings" element={<SettingsPage />} /> */}
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Shell />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="papers" element={<Papers />} />
+            <Route path="papers/:id" element={<PaperDetails />} />
+            {/* <Route path="search" element={<Search />} /> */}
+            <Route path="tasks" element={<Tasks />} />
+            {/* <Route path="metrics" element={<Metrics />} />
+            <Route path="settings" element={<Settings />} /> */}
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
