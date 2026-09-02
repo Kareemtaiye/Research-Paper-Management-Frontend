@@ -120,7 +120,10 @@ function Sidebar({ onLogout, user }: { onLogout: () => void; user: any }) {
             return (
               <button
                 key={id}
-                // onClick={() => setPage(id)}
+                onClick={() => {
+                  nav(`${id}`);
+                  setCurrPage(id);
+                }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-all text-left cursor-pointer"
                 style={{
                   backgroundColor: active ? "rgba(99,102,241,0.1)" : "transparent",
