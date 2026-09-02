@@ -18,7 +18,7 @@ function Sidebar({ onLogout, user }: { onLogout: () => void; user: any }) {
     t => t.status === "processing" || t.status === "queued",
   ).length;
 
-  const sideNav = [
+  let sideNav = [
     { id: "dashboard", label: "Dashboard", Icon: Icon.Dashboard },
     { id: "papers", label: "Papers", Icon: Icon.Papers, count: papers.length },
     {
@@ -29,8 +29,11 @@ function Sidebar({ onLogout, user }: { onLogout: () => void; user: any }) {
       countColor: runningTasks > 0 ? "bg-indigo-500/20 text-indigo-400" : undefined,
     },
     { id: "search", label: "Search", Icon: Icon.Search },
-    { id: "metrics", label: "Metrics", Icon: Icon.Metrics },
   ];
+
+  if (user?.role.toLowerCase() === "admin") {
+    sideNav.push({ id: "metrics", label: "Metrics", Icon: Icon.Metrics });
+  }
 
   return (
     <aside

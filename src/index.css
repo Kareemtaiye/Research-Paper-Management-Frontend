@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
 
 @theme inline {
   --color-background: #0a0a0f;
@@ -20,16 +20,23 @@
   --color-blue: #3b82f6;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   background-color: #0a0a0f;
   color: #e2e8f0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -64,13 +71,181 @@ html, body {
 
 /* Mono font utility */
 .font-mono {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* ─── Mobile / Responsive ─────────────────────────────────────────────────── */
+
+/* Tablet: 2-col grids, tighter padding */
+@media (max-width: 900px) {
+  /* Main content fills full width (overrides inline margin-left: 224px) */
+  main {
+    margin-left: 0 !important;
+    padding-bottom: 64px; /* space for bottom nav */
+  }
+
+  /* Sidebar becomes a fixed bottom tab bar */
+  aside {
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 56px !important;
+    flex-direction: row !important;
+    border-right: none !important;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.06) !important;
+    overflow: hidden;
+    z-index: 50;
+  }
+
+  /* Hide logo block, section labels, counts, WS indicator, sign-out in bottom nav */
+  aside > div:first-child,
+  aside > div:last-child {
+    display: none !important;
+  }
+
+  /* Nav becomes a horizontal row of icon+label buttons */
+  aside nav {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+    width: 100% !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+
+  /* Remove section label divs from bottom nav */
+  aside nav > div:not(button) {
+    display: none !important;
+  }
+
+  /* Tab buttons */
+  aside nav button {
+    flex: 1 !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    padding: 6px 4px !important;
+    border-radius: 0 !important;
+    font-size: 9px !important;
+    height: 56px !important;
+  }
+
+  /* Hide count badges in tab bar, but keep the label span (flex-1) */
+  aside nav button span:not(.flex-1) {
+    display: none !important;
+  }
+
+  /* Label spans don't need flex-grow in a column tab button */
+  aside nav button span.flex-1 {
+    flex: none !important;
+  }
+
+  /* Reduce outer page padding */
+  .px-8 {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  /* Collapse 4-col stat grids to 2 cols */
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Collapse 3-col grids to 2 cols */
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Full-width col spans */
+  .col-span-2 {
+    grid-column: span 2 !important;
+  }
+}
+
+/* Mobile: single-column, compact tables */
+@media (max-width: 600px) {
+  /* Single-column everything */
+  .grid-cols-4,
+  .grid-cols-3,
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .col-span-2,
+  .col-span-3 {
+    grid-column: span 1 !important;
+  }
+
+  /* Minimal outer padding */
+  .px-8 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Page header wraps vertically */
+  .px-8.py-5,
+  .px-8.py-6 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+}
+
+/* Make all tables horizontally scrollable at any narrow width */
+@media (max-width: 1024px) {
+  /* Wrap every table in a scroll container */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  /* Let thead/tbody stay as block so scroll works */
+  thead,
+  tbody {
+    display: table;
+    width: 100%;
+  }
+
+  /* Keep table rows and cells as native table layout */
+  tr {
+    display: table-row;
+  }
+
+  th,
+  td {
+    display: table-cell;
+  }
+}
+
+/* Metrics chart: reduce height on small screens */
+@media (max-width: 600px) {
+  /* Target the recharts wrapper div by its inline height */
+  .recharts-responsive-container {
+    height: 160px !important;
+  }
+}
+
+/* Auth page: full-width card on tiny screens */
+@media (max-width: 480px) {
+  /* Auth form fills screen */
+  .max-w-sm {
+    max-width: 100% !important;
+  }
 }
 
 /* Pulse animation for WS indicator */
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .ws-pulse {

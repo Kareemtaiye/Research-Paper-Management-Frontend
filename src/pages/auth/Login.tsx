@@ -3,10 +3,7 @@ import Button from "@/components/Button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Input from "@/components/Input";
-import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
-
-const API_BASE_URL = "http://localhost/api/v1";
 
 function Login() {
   const { login, loading } = useAuth();

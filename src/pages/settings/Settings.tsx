@@ -16,18 +16,21 @@ export default function Settings() {
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
 
   async function handleUpdateProfile() {
     setSaving(true);
     try {
       await axios.patch(
-        `${BASE_API_URL}/users/me`,
+        `${BASE_API_URL}/user/me`,
         { email },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      setIsError(false);
       setMessage("Profile updated");
     } catch (err: any) {
-      setMessage(err.response?.data?.detail ?? "Failed to update");
+      setIsError(true);
+      setMessage(err.response?.data?.message ?? "Failed to update");
     } finally {
       setSaving(false);
     }
@@ -37,15 +40,17 @@ export default function Settings() {
     setSaving(true);
     try {
       await axios.patch(
-        `${BASE_API_URL}/users/me/password`,
+        `${BASE_API_URL}/user/me/password`,
         { current_password: currentPassword, new_password: newPassword },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      setIsError(false);
       setMessage("Password changed");
       setCurrentPassword("");
       setNewPassword("");
     } catch (err: any) {
-      setMessage(err.response?.data?.detail ?? "Failed to change password");
+      setIsError(true);
+      setMessage(err.response?.data?.message ?? "Failed to change password");
     } finally {
       setSaving(false);
     }
@@ -54,24 +59,27 @@ export default function Settings() {
   async function handleClearLibrary() {
     if (!confirm("Delete all papers and tasks? This cannot be undone.")) return;
     try {
-      await axios.delete(`${BASE_API_URL}/users/me/library`, {
+      await axios.delete(`${BASE_API_URL}/user/me/library`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      setIsError(false);
       setMessage("Library cleared");
     } catch (err: any) {
-      setMessage(err.response?.data?.detail ?? "Failed to clear library");
+      setIsError(true);
+      setMessage(err.response?.data?.message ?? "Failed to clear library");
     }
   }
 
   async function handleDeleteAccount() {
     if (!confirm("Permanently delete your account? This cannot be undone.")) return;
     try {
-      await axios.delete(`${BASE_API_URL}/users/me`, {
+      await axios.delete(`${BASE_API_URL}/user/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       logout();
     } catch (err: any) {
-      setMessage(err.response?.data?.detail ?? "Failed to delete account");
+      setIsError(true);
+      setMessage(err.response?.data?.message ?? "Failed to delete account");
     }
   }
 
@@ -82,10 +90,12 @@ export default function Settings() {
       <div className="px-8 py-6 space-y-6 max-w-xl">
         {message && (
           <div
-            className="text-xs text-green-400 px-3 py-2 rounded"
+            className={`text-xs px-3 py-2 rounded ${isError ? "text-red-400 bg-red-400/8 border border-red-400/15" : "text-green-400 bg-green-400/8 border border-green-400/15"}`}
             style={{
-              background: "rgba(34,197,94,0.08)",
-              border: "0.5px solid rgba(34,197,94,0.2)",
+              background: isError ? "rgba(239,68,68,0.08)" : "rgba(34,197,94,0.08)",
+              border: isError
+                ? "0.5px solid rgba(239,68,68,0.2)"
+                : "0.5px solid rgba(34,197,94,0.2)",
             }}
           >
             {message}
