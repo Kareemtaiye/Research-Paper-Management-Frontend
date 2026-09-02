@@ -893,6 +893,7 @@ import PaperDetails from "./pages/papers/PaperDetails";
 import { Tasks } from "./pages/tasks/Task";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import Settings from "./pages/settings/Settings";
 
 export default function App() {
   return (
@@ -915,8 +916,9 @@ export default function App() {
             <Route path="papers/:id" element={<PaperDetails />} />
             {/* <Route path="search" element={<Search />} /> */}
             <Route path="tasks" element={<Tasks />} />
+            <Route path="settings" element={<Settings />} />
             {/* <Route path="metrics" element={<Metrics />} />
-            <Route path="settings" element={<Settings />} /> */}
+            // <Route path="settings" element={<Settings />} /> */}
           </Route>
         </Routes>
       </AuthProvider>
