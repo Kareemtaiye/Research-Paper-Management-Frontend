@@ -40,13 +40,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         headers: { Authorization: `bearer ${accessToken}` },
       });
 
-      console.log("Fetched user:", res);
       setUser(res.data);
       localStorage.setItem("user_id", res.data.id);
     } catch (err: any) {
-      console.error("Error fetching user:", err);
-      // token invalid or expired
-      logout();
+      // Don't navigate — just clear token and let ProtectedRoute handle it
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user_id");
+      setToken(null);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("user_id");
     setToken(null);
     setUser(null);
-    navigate("/login");
   }, [navigate]);
 
   return (
