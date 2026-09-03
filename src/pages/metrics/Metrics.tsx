@@ -56,7 +56,6 @@ const SERVICES = [
   { name: "FastAPI app", icon: "⚡", status: "Healthy", color: "green" },
   { name: "PostgreSQL", icon: "🐘", status: "Healthy", color: "green" },
   { name: "Redis", icon: "⛃", status: "Healthy", color: "green" },
-  { name: "Elasticsearch", icon: "🔍", status: "Healthy", color: "green" },
   { name: "Resend (email)", icon: "✉", status: "Healthy", color: "green" },
   { name: "Celery workers", icon: "⚙", status: "3 active", color: "green" },
   { name: "Nginx gateway", icon: "🌐", status: "Healthy", color: "green" },
