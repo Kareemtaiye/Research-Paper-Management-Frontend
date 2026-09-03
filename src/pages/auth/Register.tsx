@@ -5,7 +5,7 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 import Divider from "@/components/Divider";
 
-const API_BASE_URL = "http://localhost/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function Register() {
   const [email, setEmail] = useState("");
