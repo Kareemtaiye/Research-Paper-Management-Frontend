@@ -17,7 +17,7 @@ import NotFound from "./pages/not_found/NotFound";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/rpm">
       <ErrorBoundary>
         <AuthProvider>
           <Routes>
