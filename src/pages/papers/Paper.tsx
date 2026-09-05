@@ -217,16 +217,16 @@ function Papers() {
     });
   }
 
-  {
-    if (loading)
-      return (
-        <div className="w-full h-full flex justify-center items-center">
-          <span className={loading ? "animate-spin" : ""}>
-            <IconSpin size={20} />
-          </span>
-        </div>
-      );
-  }
+  // {
+  //   if (loading)
+  //     return (
+  //       <div className="w-full h-full flex justify-center items-center">
+  //         <span className={loading ? "animate-spin" : ""}>
+  //           <IconSpin size={20} />
+  //         </span>
+  //       </div>
+  //     );
+  // }
 
   return (
     <div>
@@ -357,7 +357,28 @@ function Papers() {
             </thead>
 
             <tbody>
-              {paged.length === 0 ? (
+              {loading ? (
+                <tr>
+                  {/* FIX: colSpan changed from 4 to 8 to cover all headings */}
+                  <td
+                    colSpan={8}
+                    className={`px-5 py-6 text-center text-xs text-slate-600 ${loading ? "h-28 relative" : ""}`}
+                  >
+                    <p className={loading ? "absolute bottom-[25%] left-[44%]" : ""}>
+                      Loading papers...
+                    </p>
+                    <span
+                      className={
+                        loading
+                          ? "animate-spin text-white absolute bottom-[50%] left-[46%]"
+                          : ""
+                      }
+                    >
+                      <IconSpin size={20} />
+                    </span>
+                  </td>
+                </tr>
+              ) : paged.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
