@@ -4,6 +4,7 @@ import axios from "axios";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import Divider from "@/components/Divider";
+import { useToast } from "@/context/ToastContext";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -12,7 +13,7 @@ function Register() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { toast } = useToast();
   const nav = useNavigate();
 
   type UserRegData = {
@@ -26,10 +27,9 @@ function Register() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
 
     if (!email || !password) {
-      setError("All fields are required.");
+      toast("All fields are required.", "warning");
       return;
     }
 
@@ -44,10 +44,24 @@ function Register() {
       console.log(res.data.data);
       registeredUser = res.data.data;
       console.log(registeredUser);
-
+      toast("Registration successful", "success");
       nav("/dashboard");
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
+      if (err.response) {
+        toast(
+          err?.response.data.message ||
+            "An error occured, try reloading the page and try again",
+          "error",
+        );
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -115,14 +129,7 @@ function Register() {
                 onChange={e => setPassword(e.target.value)}
               />
             </div>
-            {error && (
-              <div
-                className="text-xs text-red-400 bg-red-400/8 border border-red-400/15 rounded-md px-3 py-2"
-                style={{ borderWidth: "0.5px" }}
-              >
-                {error}
-              </div>
-            )}
+
             <Button variant="primary" className="w-full mt-1" disabled={loading}>
               {loading ? (
                 <>

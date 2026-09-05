@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Input from "@/components/Input";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 
 function Login() {
   const { login, loading } = useAuth();
@@ -11,6 +12,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const nav = useNavigate();
+  const { toast } = useToast();
 
   // type UserLoginData = {
   //   email: string;
@@ -23,15 +25,15 @@ function Login() {
     e.preventDefault();
     setError("");
     if (!email || !password) {
-      setError("All fields are required.");
+      toast("All fields are required", "warning");
       return;
     }
 
     try {
       const res = await login(email, password);
       // LoginUser = res;
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      console.log(err.response);
     }
   }
 
