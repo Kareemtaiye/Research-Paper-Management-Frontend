@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useTasks } from "@/context/TasksContext";
 import { usePapers } from "@/context/PapersContext";
+import { useToast } from "@/context/ToastContext";
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -27,6 +28,8 @@ function Dashboard() {
   /* End changes */
   const [arxivInput, setArxivInput] = useState("");
   const [importing, setImporting] = useState(false);
+
+  const { toast } = useToast();
 
   const nav = useNavigate();
   const completed = recentPapers?.filter(p => p.status === "completed").length;
@@ -54,9 +57,24 @@ function Dashboard() {
       // setRecentPapers(res.data.data.data);
       fetchRecentPapers();
       fetchAllPapers();
+      toast("Paper import started", "success");
     } catch (err: any) {
       console.log("Err:", err.response.data);
-      // console.error("Failed to fetch recent papers:", err);
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
+      if (err.response) {
+        toast(
+          err?.response.data.message ||
+            "An error occured, try reloading the page and try again",
+          "error",
+        );
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     } finally {
       setImporting(false);
     }
