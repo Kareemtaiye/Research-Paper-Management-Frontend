@@ -12,45 +12,46 @@ import { Paper } from "@/types/Paper";
 import { useAuth } from "@/context/AuthContext";
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
+let TIMELINE_EVENTS = [];
+// const TIMELINE_EVENTS = [
 
-const TIMELINE_EVENTS = [
-  {
-    ts: "09:23:11",
-    event: "Import requested",
-    detail: "ArXiv ID queued for processing",
-    status: "done",
-  },
-  {
-    ts: "09:23:14",
-    event: "Metadata fetched",
-    detail: "Title, authors, abstract retrieved from ArXiv API",
-    status: "done",
-  },
-  {
-    ts: "09:23:21",
-    event: "PDF downloaded",
-    detail: "1.4 MB · 24 pages · arxiv.pdf",
-    status: "done",
-  },
-  {
-    ts: "09:28:05",
-    event: "Text extraction",
-    detail: "pdfplumber extracted 18,432 tokens",
-    status: "done",
-  },
-  {
-    ts: "09:29:17",
-    event: "Citation parsing",
-    detail: "47 references identified and resolved",
-    status: "done",
-  },
-  {
-    ts: "09:31:44",
-    event: "Indexed",
-    detail: "Full-text index built · embedding stored in pgvector",
-    status: "done",
-  },
-];
+//   {
+//     ts: "09:23:11",
+//     event: "Import requested",
+//     detail: "ArXiv ID queued for processing",
+//     status: "done",
+//   },
+//   {
+//     ts: "09:23:14",
+//     event: "Metadata fetched",
+//     detail: "Title, authors, abstract retrieved from ArXiv API",
+//     status: "done",
+//   },
+//   {
+//     ts: "09:23:21",
+//     event: "PDF downloaded",
+//     detail: "1.4 MB · 24 pages · arxiv.pdf",
+//     status: "done",
+//   },
+//   {
+//     ts: "09:28:05",
+//     event: "Text extraction",
+//     detail: "pdfplumber extracted 18,432 tokens",
+//     status: "done",
+//   },
+//   {
+//     ts: "09:29:17",
+//     event: "Citation parsing",
+//     detail: "47 references identified and resolved",
+//     status: "done",
+//   },
+//   {
+//     ts: "09:31:44",
+//     event: "Indexed",
+//     detail: "Full-text index built · embedding stored in pgvector",
+//     status: "done",
+//   },
+// ];
 
 function PaperDetails() {
   const [loading, setLoading] = useState<boolean>(false);
@@ -89,6 +90,47 @@ function PaperDetails() {
   useEffect(function () {
     fetchPaperDetails();
   }, []);
+
+  useEffect(
+    function () {
+      if (Object.keys(paper).length !== 0) {
+        if (
+          paper.status === "pending" ||
+          paper.status === "processing" ||
+          paper.status === "failed"
+        ) {
+          TIMELINE_EVENTS = [];
+        } else {
+          TIMELINE_EVENTS = [
+            {
+              ts: "09:23:11",
+              event: "Import requested",
+              detail: "ArXiv ID queued for processing",
+              status: "done",
+            },
+            {
+              ts: "09:23:14",
+              event: "Metadata fetched",
+              detail: "Title, authors, abstract retrieved from ArXiv API",
+              status: "done",
+            },
+
+            {
+              ts: "09:31:44",
+              event: "Indexed",
+              detail: "Full-text index built · embedding stored in pgvector",
+              status: "done",
+            },
+          ];
+
+          TIMELINE_EVENTS[0].ts = paper.created_at;
+          TIMELINE_EVENTS[1].ts = paper.updated_at;
+          TIMELINE_EVENTS[1].ts = paper.updated_at;
+        }
+      }
+    },
+    [fetchPaperDetails, paper],
+  );
 
   {
     if (loading)
@@ -245,7 +287,11 @@ function PaperDetails() {
                 },
                 {
                   label: "Authors",
-                  value: `${paper.authors?.length} author${paper.authors?.length !== 1 ? "s" : ""}`,
+                  value: `${!paper.authors ? "--" : `author${paper.authors?.length}`} ${paper.authors?.length !== 1 ? "s" : ""}`,
+                },
+                {
+                  label: "Published Date",
+                  value: `${!paper.published_at ? "--" : formatDate(paper.published_at)} · ${!paper.published_at ? "--" : formatTime(paper.published_at)}`,
                 },
               ].map(({ label, value }) => (
                 <div key={label} className="space-y-0.5">
@@ -265,13 +311,23 @@ function PaperDetails() {
               <div className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">
                 Actions
               </div>
-              <Button variant="outline" size="sm" className="w-full justify-start">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                disabled
+              >
                 <Icon.Import />
-                Re-import
+                Re-import - N/A
               </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start"
+                disabled
+              >
                 <Icon.Search />
-                Find similar
+                Find similar - N/A
               </Button>
             </div>
           </div>
