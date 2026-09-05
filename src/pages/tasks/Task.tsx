@@ -13,19 +13,15 @@ function formatDuration(createdAt: string, completedAt: string | null): string {
       ? `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`
       : `${elapsed}s`;
   }
-
   const duration = Math.floor(
     (new Date(completedAt).getTime() - new Date(createdAt).getTime()) / 1000,
   );
-
   return duration >= 60
     ? `${Math.floor(duration / 60)}m ${duration % 60}s`
     : `${duration}s`;
 }
 
 type TaskStatus = "running" | "completed" | "failed" | "queued";
-
-export const BASE_API_URL = "http://localhost/api/v1";
 
 interface Task {
   id: string;
@@ -58,9 +54,8 @@ const TASK_TYPE_LABELS: Record<Task["task_type"], string> = {
 
 export function Tasks() {
   const [filter, setFilter] = useState<TaskStatus | "all">("all");
-  // const [loading, setLoading] = useState<boolean>(false);
-  // const [tasks, setTasks] = useState<Task[]>([]);
   const { tasks, fetchAllTasks, loading } = useTasks();
+
   const statuses: (TaskStatus | "all")[] = [
     "all",
     "running",
@@ -69,64 +64,17 @@ export function Tasks() {
     "failed",
   ];
 
-  // const token = JSON.parse(localStorage.getItem("token") || "");
   const filtered = filter === "all" ? tasks : tasks.filter(t => t.status === filter);
-  const running = tasks.filter(t => t.status === "processing").length;
+
+  // FIX: Swapped "processing" out for your actual type definition status "running"
+  const running = tasks.filter(t => t.status === "running").length;
   const queued = tasks.filter(t => t.status === "queued").length;
   const completed = tasks.filter(t => t.status === "completed").length;
   const failed = tasks.filter(t => t.status === "failed").length;
 
-  // async function fetchAllTaksk() {
-  //   setLoading(true);
-  //   const res = await axios.get(`${BASE_API_URL}/tasks`, {
-  //     headers: {
-  //       Authorization: `bearer ${token}`,
-  //     },
-  //   });
-  //   setTasks(res.data.data.data);
-  //   try {
-  //   } catch (err: any) {
-  //     console.log("Err:", err.response.data);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
-
   useEffect(function () {
     fetchAllTasks();
   }, []);
-
-  // Handle incoming WebSocket messages
-  // const handleMessage = useCallback((data: any) => {
-  //   console.log("WS message received:", data); // confirm event arrives
-  //   console.log("Current tasks:", tasks); // check if tasks are there
-  //   console.log("Looking for task_id:", data.task_id); // confirm ID
-  //   if (data.event === "task_update") {
-  //     setTasks(prev =>
-  //       prev.map(task =>
-  //         task.task_id === data.task_id
-  //           ? {
-  //               ...task,
-  //               status: data.status,
-  //               progress: data.progress ?? task.progress,
-  //               stage_message: data.stage_message ?? task.stage_message,
-  //               worker_name: data.worker_name ?? task.worker_name,
-  //               completed_at:
-  //                 data.status === "completed" || data.status === "failed"
-  //                   ? new Date().toISOString()
-  //                   : task.completed_at,
-  //             }
-  //           : task,
-  //       ),
-  //     );
-  //   }
-
-  //   if (data.event === "paper_completed") {
-  //     // refresh papers list or update specific paper
-  //   }
-  // }, []);
-
-  // useWebSocket("aae97710-8c66-49ac-8f74-4e782a4f8ac4", token, handleMessage);
 
   return (
     <div>
@@ -217,17 +165,22 @@ export function Tasks() {
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-transparent">
               {loading ? (
                 <tr>
+                  {/* FIX: colSpan changed from 4 to 8 to cover all headings */}
                   <td
-                    colSpan={4}
-                    className={`px-5 py-6 text-center text-xs text-slate-600`}
+                    colSpan={8}
+                    className={`px-5 py-6 text-center text-xs text-slate-600 ${loading ? "h-28 relative" : ""}`}
                   >
-                    Loading tasks...
+                    <p className={loading ? "absolute bottom-[25%] left-[44%]" : ""}>
+                      Loading tasks...
+                    </p>
                     <span
                       className={
-                        loading ? "animate-spin text-white absolute top-30 left-115" : ""
+                        loading
+                          ? "animate-spin text-white absolute bottom-[50%] left-[46%]"
+                          : ""
                       }
                     >
                       <IconSpin size={20} />
@@ -236,8 +189,9 @@ export function Tasks() {
                 </tr>
               ) : tasks.length === 0 ? (
                 <tr>
+                  {/* FIX: colSpan changed from 4 to 8 */}
                   <td
-                    colSpan={4}
+                    colSpan={8}
                     className="px-5 py-6 text-center text-xs text-slate-600"
                   >
                     No tasks found
@@ -264,9 +218,7 @@ export function Tasks() {
                     }
                   >
                     <td className="px-4 py-3.5">
-                      <span className="font-mono text-[11px] text-slate-500">
-                        {`task-${String(i + 1).padStart(3, "00")}`}
-                      </span>
+                      <span className="font-mono text-[11px] text-slate-500">{`task-${String(i + 1).padStart(3, "00")}`}</span>
                     </td>
                     <td className="px-4 py-3.5">
                       <span
@@ -281,7 +233,7 @@ export function Tasks() {
                         {task.result
                           ? typeof task.result === "string"
                             ? JSON.parse(task.result).title
-                            : task.result.title
+                            : (task.result as any).title
                           : "-"}
                       </div>
                     </td>
@@ -294,8 +246,7 @@ export function Tasks() {
                       </span>
                       {task.status === "failed" && (
                         <button className="ml-2 text-[10px] text-indigo-400 hover:text-indigo-300 cursor-pointer inline-flex items-center gap-1">
-                          <Icon.Retry />
-                          Retry
+                          <Icon.Retry /> Retry
                         </button>
                       )}
                     </td>
@@ -313,29 +264,23 @@ export function Tasks() {
                               className="h-full rounded-full"
                               style={{
                                 width: `${task.progress}%`,
-                                backgroundColor:
-                                  task.status === "failed" ? "#ef4444" : "#6366f1",
+                                backgroundColor: "#3b82f6",
                               }}
                             />
                           </div>
-                          <span className="text-[10px] font-mono text-slate-600 tabular-nums">
+                          <span className="text-[11px] text-slate-500 font-mono">
                             {task.progress}%
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-600">—</span>
+                        <span className="text-xs text-slate-600">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3.5">
-                      <span className="text-xs text-slate-600 font-mono">
-                        {formatDuration(task.created_at, task.completed_at)}
-                      </span>
+                    <td className="px-4 py-3.5 text-xs text-slate-400 font-mono">
+                      {formatDuration(task.created_at, task.completed_at)}
                     </td>
-                    <td className="px-4 py-3.5">
-                      <span className="text-[11px] font-mono text-slate-600">
-                        {task.worker_name?.replace("celery@", "cel@").substring(0, 12) +
-                          "…"}
-                      </span>
+                    <td className="px-4 py-3.5 text-xs text-slate-400 font-mono">
+                      {task.worker_name || "-"}
                     </td>
                   </tr>
                 ))
