@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useCallback, useEffect } from "rea
 import axios from "axios";
 import { useWebSocket } from "@/hooks/websockets";
 import { usePapers } from "./PapersContext";
+import { useToast } from "./ToastContext";
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -65,6 +66,7 @@ export const TasksProvider = ({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const { updatePaper, updateRecentPaper } = usePapers();
+  const { toast } = useToast();
 
   //   const token = localStorage.getItem("access_token");
   //   const userId = localStorage.getItem("user_id");
@@ -76,13 +78,23 @@ export const TasksProvider = ({
         headers: { Authorization: `bearer ${token}` },
       });
 
-      console.log("Fetched tasks:", res.data.data);
+      // console.log("Fetched tasks:", res.data.data);
       setTasks(res.data.data.data);
     } catch (err: any) {
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
       if (err.response) {
-        console.error("Failed to fetch tasks:", err.response?.data);
-      } else {
-        console.error(err);
+        toast(
+          err?.response.data.message ||
+            "An error occured, try reloading the page and try again",
+          "error",
+        );
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
       }
     } finally {
       setLoading(false);
@@ -144,6 +156,7 @@ export const TasksProvider = ({
           categories: data.categories,
           published_at: data.published_at,
         });
+        toast(`Paper: ${data.title} import complete.`);
       }
     },
     [updatePaper],

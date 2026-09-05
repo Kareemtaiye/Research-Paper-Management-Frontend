@@ -2,12 +2,14 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "./ToastContext";
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 interface User {
   id: string;
   email: string;
+  full_name: string | null;
   role: string;
   created_at: string;
 }
@@ -34,6 +36,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [websocketConnected, setWebsocketConnected] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  const { toast } = useToast();
+
   const fetchMe = useCallback(async (accessToken: string) => {
     try {
       const res = await axios.get(`${BASE_API_URL}/user/me`, {
@@ -48,6 +52,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       localStorage.removeItem("user_id");
       setToken(null);
       setUser(null);
+
+      if (err.response.message === " Access token expired") {
+        toast("Session expired. Please log in again", "error");
+        navigate("/login");
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -64,18 +77,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = useCallback(
     async (email: string, password: string) => {
-      const formdata = new FormData();
-      formdata.append("username", email);
-      formdata.append("password", password);
+      setLoading(true);
+      try {
+        const formdata = new FormData();
+        formdata.append("username", email);
+        formdata.append("password", password);
 
-      const res = await axios.post(`${BASE_API_URL}/auth/token`, formdata);
+        const res = await axios.post(`${BASE_API_URL}/auth/token`, formdata);
 
-      console.log("Login response:", res);
-      const accessToken = res.data.access_token;
-      localStorage.setItem("access_token", accessToken);
-      setToken(accessToken);
-      await fetchMe(accessToken);
-      navigate("/");
+        console.log("Login response:", res);
+        const accessToken = res.data.access_token;
+        localStorage.setItem("access_token", accessToken);
+        setToken(accessToken);
+        await fetchMe(accessToken);
+        navigate("/");
+      } catch (err: any) {
+        if (err.code === "ERR_NETWORK") {
+          toast("You don't have internet connection", "error");
+        }
+
+        if (err.response) {
+          toast(
+            err?.response.data.message ||
+              "An error occured, try reloading the page and try again",
+          );
+        }
+
+        if (err.response.data.code === 500) {
+          toast("Something went wrong, please try again later", "error");
+        }
+      } finally {
+        setLoading(false);
+      }
     },
     [fetchMe, navigate],
   );

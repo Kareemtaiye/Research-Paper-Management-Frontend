@@ -2,8 +2,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { Paper } from "@/types/Paper";
-import { useTasks } from "./TasksContext";
-import { useAuth } from "./AuthContext";
+import { useToast } from "./ToastContext";
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -36,7 +35,7 @@ export const PapersProvider = ({
   const [page, setCurrentPage] = useState<number>(1);
   const [perPage, setPerPage] = useState<number>(5);
   const [totalPages, setTotalPages] = useState<number>(0);
-
+  const { toast } = useToast();
   const fetchAllPapers = useCallback(async () => {
     if (!token) return;
     setLoading(true);
@@ -81,8 +80,21 @@ export const PapersProvider = ({
 
       setRecentPapers(res.data.data.data);
     } catch (err: any) {
-      console.log("Err:", err.response.data);
-      // console.error("Failed to fetch recent papers:", err);
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
+      if (err.response) {
+        toast(
+          err?.response.data.message ||
+            "An error occured, try reloading the page and try again",
+          "error",
+        );
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     } finally {
       setLoading(false);
     }
