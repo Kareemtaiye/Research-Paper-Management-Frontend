@@ -14,37 +14,40 @@ import { Metrics } from "./pages/metrics/Metrics";
 import Search from "./pages/Search/Search";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import NotFound from "./pages/not_found/NotFound";
+import { ToastProvider } from "./context/ToastContext";
 
 export default function App() {
   return (
     <BrowserRouter basename="/rpm">
       <ErrorBoundary>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Shell />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="papers" element={<Papers />} />
-              <Route path="papers/:id" element={<PaperDetails />} />
-              <Route path="search" element={<Search />} />
-              <Route path="tasks" element={<Tasks />} />
-              {/* <Route path="settings" element={<Settings />} /> */}
-              <Route path="settings" element={<Settings />} />
-              <Route path="metrics" element={<Metrics />} />
-            </Route>
+        <ToastProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Shell />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="papers" element={<Papers />} />
+                <Route path="papers/:id" element={<PaperDetails />} />
+                <Route path="search" element={<Search />} />
+                <Route path="tasks" element={<Tasks />} />
+                {/* <Route path="settings" element={<Settings />} /> */}
+                <Route path="settings" element={<Settings />} />
+                <Route path="metrics" element={<Metrics />} />
+              </Route>
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </ToastProvider>
       </ErrorBoundary>
     </BrowserRouter>
   );
