@@ -6,31 +6,53 @@ import { DangerAction, Field, Section, Toggle } from "@/components/Section";
 import PageHeader from "@/components/PageHeader";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import { useToast } from "@/context/ToastContext";
+
+// const ReqBody = {
+
+// }
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function Settings() {
   const { user, token, logout } = useAuth();
   const [email, setEmail] = useState(user?.email ?? "");
+  const [fullName, setFullName] = useState(user?.full_name ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [isError, setIsError] = useState(false);
+  const [disableUpdate, setDisableUpdate] = useState(false);
+  const { toast } = useToast();
 
   async function handleUpdateProfile() {
+    if (!email || email === user?.email) {
+      setDisableUpdate(true);
+    } else if (!fullName || fullName === user?.full_name) {
+      setDisableUpdate(true);
+    } else {
+      setDisableUpdate(false);
+    }
+
     setSaving(true);
     try {
-      await axios.patch(
+      const res = await axios.patch(
         `${BASE_API_URL}/user/me`,
         { email },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      setIsError(false);
-      setMessage("Profile updated");
+      toast(res.data.message || "Profile updated");
     } catch (err: any) {
-      setIsError(true);
-      setMessage(err.response?.data?.message ?? "Failed to update");
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
+      if (err.response) {
+        toast(err?.response.data.message || "Failed to update", "error");
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     } finally {
       setSaving(false);
     }
@@ -39,18 +61,26 @@ export default function Settings() {
   async function handleChangePassword() {
     setSaving(true);
     try {
-      await axios.patch(
+      const res = await axios.patch(
         `${BASE_API_URL}/user/me/password`,
         { current_password: currentPassword, new_password: newPassword },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      setIsError(false);
-      setMessage("Password changed");
+      toast(res.data.message || "Password changed");
       setCurrentPassword("");
       setNewPassword("");
     } catch (err: any) {
-      setIsError(true);
-      setMessage(err.response?.data?.message ?? "Failed to change password");
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
+      if (err.response) {
+        toast(err?.response.data.message || "Failed to change password", "error");
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     } finally {
       setSaving(false);
     }
@@ -59,27 +89,44 @@ export default function Settings() {
   async function handleClearLibrary() {
     if (!confirm("Delete all papers and tasks? This cannot be undone.")) return;
     try {
-      await axios.delete(`${BASE_API_URL}/user/me/library`, {
+      const res = await axios.delete(`${BASE_API_URL}/user/me/library`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setIsError(false);
-      setMessage("Library cleared");
+      toast(res.data.message || "Library cleared");
     } catch (err: any) {
-      setIsError(true);
-      setMessage(err.response?.data?.message ?? "Failed to clear library");
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
+      if (err.response) {
+        toast(err?.response.data.message || "Failed to clear library");
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     }
   }
 
   async function handleDeleteAccount() {
     if (!confirm("Permanently delete your account? This cannot be undone.")) return;
     try {
-      await axios.delete(`${BASE_API_URL}/user/me`, {
+      const res = await axios.delete(`${BASE_API_URL}/user/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       logout();
     } catch (err: any) {
-      setIsError(true);
-      setMessage(err.response?.data?.message ?? "Failed to delete account");
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
+      if (err.response) {
+        toast(err?.response.data.message || "Failed to delete account");
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     }
   }
 
@@ -88,33 +135,23 @@ export default function Settings() {
       <PageHeader title="Settings" subtitle="Account and preferences" />
 
       <div className="px-8 py-6 space-y-6 max-w-xl">
-        {message && (
-          <div
-            className={`text-xs px-3 py-2 rounded ${isError ? "text-red-400 bg-red-400/8 border border-red-400/15" : "text-green-400 bg-green-400/8 border border-green-400/15"}`}
-            style={{
-              background: isError ? "rgba(239,68,68,0.08)" : "rgba(34,197,94,0.08)",
-              border: isError
-                ? "0.5px solid rgba(239,68,68,0.2)"
-                : "0.5px solid rgba(34,197,94,0.2)",
-            }}
-          >
-            {message}
-          </div>
-        )}
-
         {/* Profile */}
         <Section title="Profile" subtitle="Update your email and role">
           <Field label="Email">
             <Input
               value={email}
+              disabled={disableUpdate}
               onChange={e => setEmail(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleUpdateProfile()}
             />
-            {/* <input
-              className="settings-input"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-            /> */}
+          </Field>
+          <Field label="Full Name">
+            <Input
+              value={fullName}
+              disabled={disableUpdate}
+              onChange={e => setFullName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleUpdateProfile()}
+            />
           </Field>
           <Field label="Role">
             <Input value={user?.role ?? ""} disabled />
