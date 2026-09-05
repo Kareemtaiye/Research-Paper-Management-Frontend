@@ -1,5 +1,6 @@
 // src/hooks/useWebSocket.ts
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { useEffect, useRef, useCallback } from "react";
 
 interface WebSocketMessage {
@@ -23,6 +24,7 @@ export const useWebSocket = (
   const reconnectTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const onMessageRef = useRef(onMessage); // ← store in ref
   const { setWebsocketConnected, logout } = useAuth();
+  const { toast } = useToast();
 
   // Keep ref current without triggering reconnect
   useEffect(() => {
@@ -33,10 +35,12 @@ export const useWebSocket = (
     if (!userId || !token) return;
 
     const url = `${import.meta.env.VITE_WS_URL}/ws/${userId}?token=${token}`;
+    toast("WebSocket connecting...", "info");
     ws.current = new WebSocket(url);
 
     ws.current.onopen = () => {
       setWebsocketConnected(true);
+      toast("Websocket connected", "success");
     };
 
     ws.current.onmessage = event => {
@@ -51,6 +55,7 @@ export const useWebSocket = (
 
     ws.current.onclose = event => {
       setWebsocketConnected(false);
+      toast("Websocket disconnected", "error");
       if (event.code === 4001 || event.code === 4002 || event.code === 4003) {
         console.log("WebSocket closed due to auth error — not reconnecting");
         logout();
@@ -62,6 +67,7 @@ export const useWebSocket = (
         return;
       }
       console.log("WebSocket disconnected — reconnecting in 3s");
+      toast("WebSocket disconnected — reconnecting in 3s", "info");
       reconnectTimer.current = setTimeout(connect, 3000);
     };
 
