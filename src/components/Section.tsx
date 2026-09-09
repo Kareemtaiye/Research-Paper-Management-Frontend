@@ -44,13 +44,16 @@ export const Field = ({
 export const Toggle = ({
   label,
   description,
-  defaultChecked,
+  checked,
+  onChange,
+  disabled,
 }: {
   label: string;
   description: string;
-  defaultChecked?: boolean;
+  checked: boolean;
+  onChange: (val: boolean) => void;
+  disabled: boolean;
 }) => {
-  const [checked, setChecked] = useState<boolean>(defaultChecked ?? false);
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
@@ -58,7 +61,8 @@ export const Toggle = ({
         <div className="text-xs text-slate-500 mt-0.5">{description}</div>
       </div>
       <button
-        onClick={() => setChecked(c => !c)}
+        onClick={() => onChange(!checked)}
+        disabled={disabled}
         className="relative flex-shrink-0 w-9 h-5 rounded-full transition-colors cursor-pointer"
         style={{
           background: checked ? "#6366f1" : "rgba(255,255,255,0.08)",
