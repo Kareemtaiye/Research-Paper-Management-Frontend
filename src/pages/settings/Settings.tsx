@@ -7,6 +7,7 @@ import PageHeader from "@/components/PageHeader";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
 import { useToast } from "@/context/ToastContext";
+import { usePreferences } from "@/hooks/usePreferences";
 
 // const ReqBody = {
 
@@ -15,33 +16,30 @@ import { useToast } from "@/context/ToastContext";
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 export default function Settings() {
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, fetchMe } = useAuth();
   const [email, setEmail] = useState(user?.email ?? "");
   const [fullName, setFullName] = useState(user?.full_name ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
-  const [disableUpdate, setDisableUpdate] = useState(false);
   const { toast } = useToast();
 
-  async function handleUpdateProfile() {
-    if (!email || email === user?.email) {
-      setDisableUpdate(true);
-    } else if (!fullName || fullName === user?.full_name) {
-      setDisableUpdate(true);
-    } else {
-      setDisableUpdate(false);
-    }
+  const { prefs, prefsaving, updatePreference } = usePreferences();
+  console.log(prefsaving, prefs);
 
+  const hasChanges = email !== user?.email || fullName !== user?.full_name;
+  async function handleUpdateProfile() {
     setSaving(true);
     try {
       const res = await axios.patch(
         `${BASE_API_URL}/user/me`,
-        { email },
+        { email, full_name: fullName },
         { headers: { Authorization: `Bearer ${token}` } },
       );
       toast(res.data.message || "Profile updated");
+      fetchMe(token);
     } catch (err: any) {
+      console.log(err);
       if (err.code === "ERR_NETWORK") {
         toast("You don't have internet connection", "error");
       }
@@ -140,7 +138,6 @@ export default function Settings() {
           <Field label="Email">
             <Input
               value={email}
-              disabled={disableUpdate}
               onChange={e => setEmail(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleUpdateProfile()}
             />
@@ -148,7 +145,6 @@ export default function Settings() {
           <Field label="Full Name">
             <Input
               value={fullName}
-              disabled={disableUpdate}
               onChange={e => setFullName(e.target.value)}
               onKeyDown={e => e.key === "Enter" && handleUpdateProfile()}
             />
@@ -157,7 +153,7 @@ export default function Settings() {
             <Input value={user?.role ?? ""} disabled />
             {/* <input className="settings-input" value={user?.role ?? ""} disabled /> */}
           </Field>
-          <Button onClick={handleUpdateProfile} disabled={saving}>
+          <Button onClick={handleUpdateProfile} disabled={saving || !hasChanges}>
             Save changes
           </Button>
         </Section>
@@ -189,12 +185,19 @@ export default function Settings() {
           <Toggle
             label="Email on import complete"
             description="Receive an email via Resend when a paper finishes importing"
-            defaultChecked={true}
+            checked={prefs.email_on_import_complete}
+            onChange={val => updatePreference("email_on_import_complete", val)}
+            disabled={prefsaving}
           />
           <Toggle
             label="WebSocket auto-reconnect"
             description="Automatically reconnect if the real-time connection drops"
-            defaultChecked={true}
+            checked={prefs.websocket_auto_reconnect}
+            onChange={val => {
+              updatePreference("websocket_auto_reconnect", val);
+              console.log("ARggg");
+            }}
+            disabled={prefsaving}
           />
         </Section>
 
