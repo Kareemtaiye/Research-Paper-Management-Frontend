@@ -9,21 +9,6 @@ const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 type TaskStatus = "processing" | "completed" | "failed" | "queued";
 
-// interface Task {
-//   id: string;
-//   task_id: string;
-//   status: string;
-//   progress: number;
-//   stage_message: string | null;
-//   worker_name: string | null;
-//   task_type: string | null;
-//   paper_id: string | null;
-//   created_at: string;
-//   completed_at: string | null;
-//   error: string | null;
-//   result: any;
-// }
-
 interface Task {
   id: string;
   task_id: string;
@@ -103,6 +88,7 @@ export const TasksProvider = ({
 
   // Fetch on mount
   useEffect(() => {
+    if (!token) return;
     fetchAllTasks();
   }, [fetchAllTasks]);
 
