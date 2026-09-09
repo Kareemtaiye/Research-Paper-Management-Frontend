@@ -10,10 +10,6 @@ interface PapersContextType {
   papers: Paper[];
   recentPapers: Paper[];
   loading: boolean;
-  page: number;
-  perPage: number;
-  totalPages: number;
-  setCurrentPage: (page: number) => void;
   fetchAllPapers: () => Promise<void>;
   fetchRecentPapers: () => Promise<void>;
   updatePaper: (paperId: string, updates: Partial<Paper>) => void;
@@ -32,10 +28,8 @@ export const PapersProvider = ({
   const [papers, setPapers] = useState<Paper[]>([]);
   const [recentPapers, setRecentPapers] = useState<Paper[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [page, setCurrentPage] = useState<number>(1);
-  const [perPage, setPerPage] = useState<number>(5);
-  const [totalPages, setTotalPages] = useState<number>(0);
   const { toast } = useToast();
+
   const fetchAllPapers = useCallback(async () => {
     if (!token) return;
     setLoading(true);
@@ -43,12 +37,30 @@ export const PapersProvider = ({
       const res = await axios.get(`${BASE_API_URL}/papers/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPapers(res.data.data.data);
-      setCurrentPage(res.data.data.page);
-      setPerPage(res.data.data.per_page);
-      setTotalPages(res.data.data.total);
+
+      const data = res.data.data;
+      setPapers(data);
     } catch (err: any) {
-      console.error("Failed to fetch papers:", err.response?.data);
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      } else if (
+        err.response.message === " Access token expired" ||
+        err.response.message === "Invalid access token"
+      ) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user_id");
+        toast("Session expired. Please log in again", "error");
+      } else if (err.response) {
+        toast(
+          err?.response.data.message ||
+            "An error occured, try reloading the page and try again",
+          "error",
+        );
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -65,6 +77,7 @@ export const PapersProvider = ({
   }, []);
 
   useEffect(() => {
+    if (!token) return;
     fetchAllPapers();
   }, [fetchAllPapers]);
 
@@ -101,6 +114,7 @@ export const PapersProvider = ({
   }
 
   useEffect(() => {
+    if (!token) return;
     fetchRecentPapers();
   }, []);
 
@@ -110,10 +124,6 @@ export const PapersProvider = ({
         papers,
         recentPapers,
         loading,
-        page,
-        perPage,
-        totalPages,
-        setCurrentPage,
         fetchAllPapers,
         fetchRecentPapers,
         updatePaper,
