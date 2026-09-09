@@ -312,6 +312,7 @@ function PaperDetails() {
                 Actions
               </div>
               <Button
+                cursor="not-allowed"
                 variant="outline"
                 size="sm"
                 className="w-full justify-start"
@@ -321,6 +322,7 @@ function PaperDetails() {
                 Re-import - N/A
               </Button>
               <Button
+                cursor="not-allowed"
                 variant="outline"
                 size="sm"
                 className="w-full justify-start"
