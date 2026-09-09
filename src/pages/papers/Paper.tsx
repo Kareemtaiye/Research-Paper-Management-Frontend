@@ -1,13 +1,18 @@
+import { Badge } from "@/components/Badge";
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import PageHeader from "@/components/PageHeader";
+import { StatusChip } from "@/components/StatusChip";
 import { usePapers } from "@/context/PapersContext";
 import { PaperStatus } from "@/types/Paper";
 import { Icon, IconSpin } from "@/ui/icons";
-import { exportCSV } from "@/utils/utils";
+import { exportCSV, formatDate } from "@/utils/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Papers() {
+  const { loading, fetchAllPapers, updatePaper, papers } = usePapers();
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<PaperStatus | "all">("all");
   const [catFilter, setCatFilter] = useState("all");
@@ -18,44 +23,8 @@ function Papers() {
   const [exporting, setExporting] = useState(false);
   const nav = useNavigate();
 
-  // const [loading, setLoading] = useState<boolean>(false);
-  // const [papers, setPapers] = useState<Paper[]>([]);
-  // const [page, setCurrentPage] = useState(1);
-  // const [totalPages, setTotalPages] = useState<number>(0);
-  // const [perPage, setperPage] = useState<number>(5);
-
-  const {
-    loading,
-    fetchAllPapers,
-    updatePaper,
-    setCurrentPage,
-    papers,
-    page,
-    totalPages,
-    perPage,
-  } = usePapers();
-
-  const token = localStorage.getItem("access_token");
-
-  // async function fetchAllPapers() {
-  //   setLoading(true);
-  //   try {
-  //     const res = await axios.get(`${BASE_API_URL}/papers/me`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     setPapers(res.data.data.data);
-  //     setCurrentPage(res.data.data.page);
-  //     setperPage(res.data.data.per_page);
-  //     setTotalPages(res.data.data.total);
-  //   } catch (err: any) {
-  //     console.log("Err:", err.response.data);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 3;
 
   useEffect(function () {
     fetchAllPapers();
@@ -109,7 +78,14 @@ function Papers() {
     });
   }, [papers, search, statusFilter, catFilter, sortBy, sortDir]);
 
-  const paged = filtered.slice((page - 1) * perPage, page * perPage);
+  // Compute pagination locally
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter, catFilter]);
 
   const toggleSort = (col: typeof sortBy) => {
     if (sortBy === col) setSortDir(d => (d === "asc" ? "desc" : "asc"));
@@ -131,102 +107,6 @@ function Papers() {
       setExporting(false);
     }, 400);
   };
-
-  const Badge = ({
-    children,
-    className = "",
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <span
-      className={`inline-flex px-1.5 py-0.5 rounded text-xs font-mono text-slate-400 bg-white/4 border border-white/6 ${className}`}
-      style={{ borderWidth: "0.5px" }}
-    >
-      {children}
-    </span>
-  );
-
-  const StatusChip = ({ status }: { status: PaperStatus }) => {
-    const map: Record<PaperStatus, { label: string; color: string; dot: string }> = {
-      completed: {
-        label: "Completed",
-        color: "text-green-400 bg-green-400/8 border-green-400/20",
-        dot: "bg-green-400",
-      },
-      processing: {
-        label: "Processing",
-        color: "text-blue-400 bg-blue-400/8 border-blue-400/20",
-        dot: "bg-blue-400",
-      },
-      pending: {
-        label: "Pending",
-        color: "text-amber-400 bg-amber-400/8 border-amber-400/20",
-        dot: "bg-amber-400",
-      },
-      queued: {
-        label: "Queued",
-        color: "text-slate-400 bg-slate-400/8 border-slate-400/20",
-        dot: "bg-slate-400",
-      },
-      failed: {
-        label: "Failed",
-        color: "text-red-400 bg-red-400/8 border-red-400/20",
-        dot: "bg-red-400",
-      },
-    };
-
-    const { label, color, dot } = map[status];
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${color}`}
-        style={{ borderWidth: "0.5px" }}
-      >
-        <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-        {label}
-      </span>
-    );
-  };
-
-  const PageHeader = ({
-    title,
-    subtitle,
-    actions,
-  }: {
-    title: string;
-    subtitle?: string;
-    actions?: React.ReactNode;
-  }) => (
-    <div
-      className="px-8 py-5 flex items-center justify-between"
-      style={{ borderBottom: "0.5px solid rgba(255,255,255,0.06)" }}
-    >
-      <div>
-        <h1 className="text-sm font-semibold text-slate-100">{title}</h1>
-        {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
-      </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
-    </div>
-  );
-
-  function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  }
-
-  // {
-  //   if (loading)
-  //     return (
-  //       <div className="w-full h-full flex justify-center items-center">
-  //         <span className={loading ? "animate-spin" : ""}>
-  //           <IconSpin size={20} />
-  //         </span>
-  //       </div>
-  //     );
-  // }
 
   return (
     <div>
@@ -261,7 +141,7 @@ function Papers() {
               value={search}
               onChange={e => {
                 setSearch(e.target.value);
-                setCurrentPage(1);
+                setPage(1);
               }}
               className="pl-9"
             />
@@ -270,7 +150,7 @@ function Papers() {
             value={statusFilter}
             onChange={e => {
               setStatusFilter(e.target.value as PaperStatus | "all");
-              setCurrentPage(1);
+              setPage(1);
             }}
             className="text-sm rounded-md px-3 py-2 text-slate-300 outline-none cursor-pointer"
             style={{
@@ -288,7 +168,7 @@ function Papers() {
             value={catFilter}
             onChange={e => {
               setCatFilter(e.target.value);
-              setCurrentPage(1);
+              setPage(1);
             }}
             className="text-sm rounded-md px-3 py-2 text-slate-300 outline-none cursor-pointer"
             style={{
@@ -454,14 +334,14 @@ function Papers() {
               }}
             >
               <span className="text-xs text-slate-600">
-                {(page - 1) * perPage + 1}–{Math.min(page * perPage, filtered.length)} of{" "}
-                {filtered.length}
+                {(page - 1) * PER_PAGE + 1}–{Math.min(page * PER_PAGE, filtered.length)}{" "}
+                of {filtered.length}
               </span>
               <div className="flex gap-1">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
                 >
                   ←
@@ -471,7 +351,7 @@ function Papers() {
                     key={n}
                     variant={n === page ? "primary" : "outline"}
                     size="sm"
-                    onClick={() => setCurrentPage(n)}
+                    onClick={() => setPage(n)}
                   >
                     {n}
                   </Button>
@@ -479,7 +359,7 @@ function Papers() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                 >
                   →
