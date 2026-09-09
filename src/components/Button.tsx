@@ -4,16 +4,18 @@ function Button({
   children,
   variant = "primary",
   size = "md",
+  cursor = "pointer",
   className = "",
   ...props
 }: {
   children: React.ReactNode;
   variant?: "primary" | "ghost" | "outline";
+  cursor?: string;
   size?: "sm" | "md";
   className?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const base =
-    "inline-flex items-center justify-center gap-2 font-medium rounded-md transition-all cursor-pointer disabled:opacity-40";
+    "inline-flex items-center justify-center gap-2 font-medium rounded-md transition-all disabled:opacity-40";
   const sizes = { sm: "px-3 py-1.5 text-xs", md: "px-4 py-2 text-sm" };
   const variants = {
     primary: "bg-indigo-600 hover:bg-indigo-500 text-white",
@@ -24,7 +26,7 @@ function Button({
 
   return (
     <button
-      className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`${base} ${sizes[size]} ${variants[variant]} ${className} cursor-${cursor}`}
       {...props}
     >
       {children}
