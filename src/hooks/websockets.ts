@@ -19,6 +19,7 @@ export const useWebSocket = (
   userId: string | null,
   token: string | null,
   onMessage: (data: WebSocketMessage) => void,
+  autoReconnect: boolean = true, // ← from preferences
 ) => {
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout>>(null);
@@ -66,9 +67,12 @@ export const useWebSocket = (
         console.log("Auth failed — not reconnecting");
         return;
       }
-      console.log("WebSocket disconnected — reconnecting in 3s");
+
       toast("WebSocket disconnected — reconnecting in 3s", "info");
-      reconnectTimer.current = setTimeout(connect, 3000);
+      if (autoReconnect) {
+        reconnectTimer.current = setTimeout(connect, 3000);
+      }
+      // reconnectTimer.current = setTimeout(connect, 3000);
     };
 
     ws.current.onerror = () => {
