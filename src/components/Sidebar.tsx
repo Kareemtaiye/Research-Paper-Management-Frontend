@@ -2,16 +2,21 @@ import { Icon } from "@/ui/icons";
 import Divider from "./Divider";
 import WsIndicator from "./WsIndicator";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { usePapers } from "@/context/PapersContext";
 import { useTasks } from "@/context/TasksContext";
 
 function Sidebar({ onLogout, user }: { onLogout: () => void; user: any }) {
-  const [currPage, setCurrPage] = useState("dashboard");
+  const location = useLocation();
+
+  const [currPage, setCurrPage] = useState(
+    location.pathname.split("/")[1] || "dashboard",
+  );
   const { websocketConnected } = useAuth();
   const nav = useNavigate();
   const { papers } = usePapers();
+
   const { tasks } = useTasks();
 
   const runningTasks = tasks.filter(
