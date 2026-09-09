@@ -21,6 +21,7 @@ interface AuthContextType {
   websocketConnected: boolean;
   setWebsocketConnected: (connected: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
+  fetchMe: (accessToken: string) => void;
   logout: () => void;
 }
 
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(() => {
     // lazy initializer — reads localStorage once on mount
-    return localStorage.getItem("access_token") || "null";
+    return localStorage.getItem("access_token") || null;
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [websocketConnected, setWebsocketConnected] = useState<boolean>(false);
@@ -47,15 +48,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(res.data);
       localStorage.setItem("user_id", res.data.id);
     } catch (err: any) {
-      // Don't navigate — just clear token and let ProtectedRoute handle it
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user_id");
-      setToken(null);
-      setUser(null);
+      //
+      console.log(err.response.data);
 
-      if (err.response.message === " Access token expired") {
-        toast("Session expired. Please log in again", "error");
+      if (err.response?.status === 401 || err.response?.data?.code === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user_id");
+        setToken(null);
+        setUser(null);
         navigate("/login");
+      } else if (err.code === "ERR_NETWORK") {
+        toast("No internet connection", "error");
+      } else {
+        toast(err.response?.data?.detail ?? "Failed to load user", "error");
       }
 
       if (err.response.data.code === 500) {
@@ -68,7 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // On mount — if token exists, fetch user
   useEffect(() => {
-    if (token) {
+    if (token && token !== "null") {
       fetchMe(token);
     } else {
       setLoading(false);
@@ -85,7 +90,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const res = await axios.post(`${BASE_API_URL}/auth/token`, formdata);
 
-        console.log("Login response:", res);
         const accessToken = res.data.access_token;
         localStorage.setItem("access_token", accessToken);
         setToken(accessToken);
@@ -113,17 +117,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [fetchMe, navigate],
   );
 
-  const logout = useCallback(() => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user_id");
-    setToken(null);
-    setUser(null);
+  const logout = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.post(`${BASE_API_URL}/auth/logout`, {
+        headers: { Authorization: `bearer ${token}` },
+      });
+
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user_id");
+      setToken(null);
+      setUser(null);
+    } catch (err: any) {
+      // Don't navigate — just clear token and let ProtectedRoute handle it
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user_id");
+      setToken(null);
+      setUser(null);
+
+      // Safe version
+      if (err.response?.status === 401 || err.response?.data?.code === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user_id");
+        setToken(null);
+        setUser(null);
+        navigate("/login");
+      } else if (err.code === "ERR_NETWORK") {
+        toast("No internet connection", "error");
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
+    } finally {
+      setLoading(false);
+    }
   }, [navigate]);
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        fetchMe,
         token,
         loading,
         websocketConnected,
