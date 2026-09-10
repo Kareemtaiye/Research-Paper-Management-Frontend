@@ -98,10 +98,63 @@ body {
     z-index: 50;
   }
 
-  /* Hide logo block, section labels, counts, WS indicator, sign-out in bottom nav */
-  aside > div:first-child,
-  aside > div:last-child {
+  /* Hide only the logo block */
+  aside > div:first-child {
     display: none !important;
+  }
+
+  /* Footer (WS + sign-out): compact column at the right of the tab bar */
+  aside > div:last-child {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 4px 10px !important;
+    padding-bottom: 4px !important;
+    flex-shrink: 0 !important;
+    height: 56px !important;
+    border-left: 0.5px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* Hide the divider line inside the footer */
+  aside > div:last-child .border-t {
+    display: none !important;
+  }
+
+  /* WS indicator: row layout, compact, no background tint */
+  aside > div:last-child > div:not(.border-t) {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 2px 4px !important;
+    background: transparent !important;
+    width: auto !important;
+  }
+
+  /* Hide "WebSocket" text label, keep icon + pulse dot */
+  aside > div:last-child > div:not(.border-t) > span.text-slate-500 {
+    display: none !important;
+  }
+
+  /* Remove ml-auto from the pulse dot so it sits beside the icon */
+  aside > div:last-child > div:not(.border-t) > span.ml-auto {
+    margin-left: 0 !important;
+  }
+
+  /* Sign-out button: icon-only, hide text node via font-size trick */
+  aside > div:last-child > button {
+    width: auto !important;
+    padding: 4px 6px !important;
+    gap: 0 !important;
+    font-size: 0 !important;
+    justify-content: center !important;
+  }
+
+  /* Restore SVG visibility inside the icon-only sign-out button */
+  aside > div:last-child > button svg {
+    width: 15px !important;
+    height: 15px !important;
   }
 
   /* Nav becomes a horizontal row of icon+label buttons */
