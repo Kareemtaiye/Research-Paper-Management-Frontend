@@ -5,6 +5,7 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 import Divider from "@/components/Divider";
 import { useToast } from "@/context/ToastContext";
+import { PasswordStrength } from "@/components/PasswordStrength";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -45,7 +46,7 @@ function Register() {
       registeredUser = res.data.data;
       console.log(registeredUser);
       toast("Registration successful", "success");
-      nav("/dashboard");
+      nav("/verify-email");
     } catch (err: any) {
       if (err.code === "ERR_NETWORK") {
         toast("You don't have internet connection", "error");
@@ -128,6 +129,7 @@ function Register() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
               />
+              <PasswordStrength password={password} />
             </div>
 
             <Button variant="primary" className="w-full mt-1" disabled={loading}>
