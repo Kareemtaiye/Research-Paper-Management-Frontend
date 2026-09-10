@@ -5,6 +5,7 @@ import { TasksProvider } from "@/context/TasksContext";
 // import { PapersProvider } from "@/context/PapersContext";
 import Sidebar from "@/components/Sidebar";
 import { PapersProvider } from "@/context/PapersContext";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 const Shell = () => {
   const { user, token, logout } = useAuth();
@@ -17,6 +18,7 @@ const Shell = () => {
           <main className="flex-1 overflow-auto" style={{ marginLeft: 224 }}>
             <Outlet />
           </main>
+          <FeedbackWidget />
         </div>
       </TasksProvider>
     </PapersProvider>
