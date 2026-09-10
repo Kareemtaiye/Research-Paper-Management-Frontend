@@ -14,13 +14,6 @@ function Login() {
   const nav = useNavigate();
   const { toast } = useToast();
 
-  // type UserLoginData = {
-  //   email: string;
-  //   created_at: string;
-  //   id: string;
-  //   role: string;
-  // };
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -30,10 +23,23 @@ function Login() {
     }
 
     try {
-      const res = await login(email, password);
-      // LoginUser = res;
+      await login(email, password);
     } catch (err: any) {
-      console.log(err.response);
+      if (err.code === "ERR_NETWORK") {
+        toast("You don't have internet connection", "error");
+      }
+
+      if (err.response) {
+        toast(
+          err?.response.data.message ||
+            "An error occured, try reloading the page and try again",
+          "error",
+        );
+      }
+
+      if (err.response.data.code === 500) {
+        toast("Something went wrong, please try again later", "error");
+      }
     }
   }
 
@@ -88,6 +94,7 @@ function Login() {
                 <button
                   type="button"
                   className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+                  onClick={() => nav("/forgot-password")}
                 >
                   Forgot password?
                 </button>
