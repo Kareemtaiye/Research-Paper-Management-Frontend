@@ -16,6 +16,10 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import NotFound from "./pages/not_found/NotFound";
 import { ToastProvider } from "./context/ToastContext";
 
+import ForgotPassword from "@/pages/auth/ForgetPassword";
+import ResetPassword from "@/pages/auth/ResetPassword";
+import VerifyEmail from "@/pages/auth/VerifyEmail";
+
 export default function App() {
   return (
     <BrowserRouter basename="/rpm">
@@ -25,6 +29,9 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               <Route
                 path="/"
                 element={
