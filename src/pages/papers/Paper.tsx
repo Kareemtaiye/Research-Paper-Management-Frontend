@@ -24,7 +24,7 @@ function Papers() {
   const nav = useNavigate();
 
   const [page, setPage] = useState(1);
-  const PER_PAGE = 3;
+  const PER_PAGE = 6;
 
   useEffect(function () {
     fetchAllPapers();
