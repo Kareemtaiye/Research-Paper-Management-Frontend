@@ -11,6 +11,7 @@ import axios from "axios";
 import { useTasks } from "@/context/TasksContext";
 import { usePapers } from "@/context/PapersContext";
 import { useToast } from "@/context/ToastContext";
+import { toastApiError } from "@/utils/apiError";
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -58,23 +59,8 @@ function Dashboard() {
       fetchRecentPapers();
       fetchAllPapers();
       toast("Paper import started", "success");
-    } catch (err: any) {
-      console.log("Err:", err.response.data);
-      if (err.code === "ERR_NETWORK") {
-        toast("You don't have internet connection", "error");
-      }
-
-      if (err.response) {
-        toast(
-          err?.response.data.message ||
-            "An error occured, try reloading the page and try again",
-          "error",
-        );
-      }
-
-      if (err.response.data.code === 500) {
-        toast("Something went wrong, please try again later", "error");
-      }
+    } catch (err) {
+      toastApiError(err, toast);
     } finally {
       setImporting(false);
     }
@@ -101,7 +87,9 @@ function Dashboard() {
           <Stat
             label="completed"
             value={loading ? "..." : completed}
-            sub={`${loading ? "..." : Math.round((completed / recentPapers.length) * 100)}% success rate`}
+            sub={`${
+              loading ? "..." : Math.round((completed / recentPapers.length) * 100)
+            }% success rate`}
           />
           <Stat
             label="Processing"
@@ -294,7 +282,10 @@ function Dashboard() {
                       </div>
                       <div
                         className="w-full rounded-full overflow-hidden"
-                        style={{ height: 2, backgroundColor: "rgba(255,255,255,0.06)" }}
+                        style={{
+                          height: 2,
+                          backgroundColor: "rgba(255,255,255,0.06)",
+                        }}
                       >
                         <div
                           className="h-full rounded-full"
