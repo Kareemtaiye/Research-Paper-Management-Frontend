@@ -5,7 +5,7 @@ import { Stat } from "@/components/Stat";
 import { StatusChip } from "@/components/StatusChip";
 import { Icon, IconSpin } from "@/ui/icons";
 import { formatDate } from "@/utils/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useTasks } from "@/context/TasksContext";
@@ -26,6 +26,7 @@ function Dashboard() {
     fetchRecentPapers();
   }, []);
 
+  let cachedArxivInput = useRef(null);
   /* End changes */
   const [arxivInput, setArxivInput] = useState("");
   const [importing, setImporting] = useState(false);
@@ -43,6 +44,7 @@ function Dashboard() {
   async function handleArxivImport() {
     if (!arxivInput.trim()) return;
     setImporting(true);
+    cachedArxivInput.current = arxivInput;
 
     try {
       const res = await axios.post(
@@ -58,6 +60,7 @@ function Dashboard() {
       // setRecentPapers(res.data.data.data);
       fetchRecentPapers();
       fetchAllPapers();
+
       setArxivInput("");
       fetchAllTasks();
       toast("Paper import started", "success");
@@ -67,8 +70,6 @@ function Dashboard() {
       setImporting(false);
     }
   }
-
-  console.log(tasks);
 
   return (
     <div>
@@ -279,10 +280,14 @@ function Dashboard() {
                   {activeTasks.map(task => (
                     <div key={task.id} className="px-4 py-3 space-y-2">
                       <div className="text-xs text-slate-400 line-clamp-1">
-                        {task.paper_title}
+                        {task.result
+                          ? typeof task.result === "string"
+                            ? JSON.parse(task.result).title
+                            : (task.result as any).title
+                          : `ID - ${cachedArxivInput.current}`}
                       </div>
                       <div className="text-[11px] text-slate-600 font-mono">
-                        {task.step}
+                        {task.stage_message}
                       </div>
                       <div
                         className="w-full rounded-full overflow-hidden"
