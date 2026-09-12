@@ -69,7 +69,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
           maxWidth: 360,
         }}
       >
-        {toasts.slice(-6).map(t => (
+        {toasts.slice(-3).map(t => (
           <div
             key={t.id}
             style={{
