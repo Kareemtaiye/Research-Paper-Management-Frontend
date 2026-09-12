@@ -1,65 +1,64 @@
 // src/components/FeedbackWidget.tsx
-import { useEffect, useState } from "react"
-import { useAuth } from "@/context/AuthContext"
-import { useToast } from "@/context/ToastContext"
-import { toastApiError } from "@/utils/apiError"
-import axios from "axios"
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
+import { toastApiError } from "@/utils/apiError";
+import axios from "axios";
 
-const BASE_API_URL = import.meta.env.VITE_API_URL
+const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 export const FeedbackWidget = () => {
-  const [open, setOpen] = useState(false)
-  const [type, setType] = useState<"feedback" | "bug">("feedback")
-  const [message, setMessage] = useState("")
-  const [email, setEmail] = useState("")
-  const [submitting, setSubmitting] = useState(false)
-  const { user } = useAuth()
-  const { toast } = useToast()
+  const [open, setOpen] = useState(false);
+  const [type, setType] = useState<"feedback" | "bug">("feedback");
+  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   // Pre-fill email if logged in
-  const emailValue = email || user?.email || ""
+  const emailValue = email || user?.email || "";
 
   async function handleSubmit() {
     if (!message.trim()) {
-      toast("Please enter a message", "warning")
-      return
+      toast("Please enter a message", "warning");
+      return;
     }
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       await axios.post(`${BASE_API_URL}/feedback`, {
         type,
         message,
         email: emailValue,
-      })
-      toast("Feedback sent — thank you!", "success")
-      setOpen(false)
-      setMessage("")
-      setType("feedback")
+      });
+      toast("Feedback sent — thank you!", "success");
+      setOpen(false);
+      setMessage("");
+      setType("feedback");
     } catch (err) {
-      toastApiError(err, toast, "Failed to send feedback")
+      toastApiError(err, toast, "Failed to send feedback");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
   }
 
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 768px)")
+    const mediaQuery = window.matchMedia("(max-width: 768px)");
 
-    const handleChange = () => setIsMobile(mediaQuery.matches)
+    const handleChange = () => setIsMobile(mediaQuery.matches);
 
-    handleChange()
-    mediaQuery.addEventListener("change", handleChange)
+    handleChange();
+    mediaQuery.addEventListener("change", handleChange);
 
-    return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [])
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   return (
     <>
-      {/* Floating button */}
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(o => !o)}
         style={{
           position: "fixed",
           bottom: isMobile ? 55 : 24,
@@ -77,13 +76,13 @@ export const FeedbackWidget = () => {
           cursor: "pointer",
           transition: "all .15s",
         }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "rgba(99,102,241,0.4)"
-          e.currentTarget.style.color = "#e2e8f0"
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = "rgba(99,102,241,0.4)";
+          e.currentTarget.style.color = "#e2e8f0";
         }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"
-          e.currentTarget.style.color = "#94a3b8"
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+          e.currentTarget.style.color = "#94a3b8";
         }}
       >
         <span style={{ fontSize: 14 }}>{open ? "✕" : "💬"}</span>
@@ -109,7 +108,6 @@ export const FeedbackWidget = () => {
             boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
           }}
         >
-          {/* Header */}
           <div>
             <div style={{ fontSize: 13, fontWeight: 500, color: "#e2e8f0" }}>
               Send feedback
@@ -119,9 +117,8 @@ export const FeedbackWidget = () => {
             </div>
           </div>
 
-          {/* Type toggle */}
           <div style={{ display: "flex", gap: 6 }}>
-            {(["feedback", "bug"] as const).map((t) => (
+            {(["feedback", "bug"] as const).map(t => (
               <button
                 key={t}
                 onClick={() => setType(t)}
@@ -144,10 +141,9 @@ export const FeedbackWidget = () => {
             ))}
           </div>
 
-          {/* Message */}
           <textarea
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={e => setMessage(e.target.value)}
             placeholder={
               type === "bug"
                 ? "Describe the bug — what happened, what did you expect?"
@@ -165,18 +161,13 @@ export const FeedbackWidget = () => {
               outline: "none",
               fontFamily: "inherit",
             }}
-            onFocus={(e) =>
-              (e.target.style.borderColor = "rgba(99,102,241,0.4)")
-            }
-            onBlur={(e) =>
-              (e.target.style.borderColor = "rgba(255,255,255,0.08)")
-            }
+            onFocus={e => (e.target.style.borderColor = "rgba(99,102,241,0.4)")}
+            onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
           />
 
-          {/* Email */}
           <input
             value={emailValue}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             placeholder="Your email (optional)"
             style={{
               background: "rgba(255,255,255,0.03)",
@@ -187,15 +178,10 @@ export const FeedbackWidget = () => {
               fontSize: 12,
               outline: "none",
             }}
-            onFocus={(e) =>
-              (e.target.style.borderColor = "rgba(99,102,241,0.4)")
-            }
-            onBlur={(e) =>
-              (e.target.style.borderColor = "rgba(255,255,255,0.08)")
-            }
+            onFocus={e => (e.target.style.borderColor = "rgba(99,102,241,0.4)")}
+            onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
           />
 
-          {/* Submit */}
           <button
             onClick={handleSubmit}
             disabled={submitting || !message.trim()}
@@ -217,5 +203,5 @@ export const FeedbackWidget = () => {
         </div>
       )}
     </>
-  )
-}
+  );
+};
