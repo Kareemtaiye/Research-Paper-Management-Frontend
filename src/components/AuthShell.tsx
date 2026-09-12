@@ -126,9 +126,11 @@ export const SentState = ({
   onAction,
   icon = "✉",
   iconColor = "#818cf8",
+  disabled = false,
 }: {
   title: string;
   description: string;
+  disabled?: boolean;
   action: string;
   onAction: () => void;
   icon?: string;
@@ -158,7 +160,9 @@ export const SentState = ({
         {description}
       </div>
     </div>
-    <AuthButton onClick={onAction}>{action}</AuthButton>
+    <AuthButton disabled={disabled} onClick={onAction}>
+      {action}
+    </AuthButton>
   </div>
 );
 
