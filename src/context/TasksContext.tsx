@@ -96,7 +96,7 @@ export const TasksProvider = ({
                 progress: data.progress ?? 0,
                 stage_message: data.stage_message ?? null,
                 worker_name: data.worker_name ?? null,
-                task_type: data.task_type ?? null,
+                task_type: data.task_type || "fetch_paper_metadata",
                 paper_id: data.paper_id ?? null,
                 created_at: new Date().toISOString(),
                 completed_at: null,
