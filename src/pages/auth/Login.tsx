@@ -1,45 +1,31 @@
-import Divider from "@/components/Divider";
-import Button from "@/components/Button";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import Input from "@/components/Input";
-import { useAuth } from "@/context/AuthContext";
-import { useToast } from "@/context/ToastContext";
+import Divider from "@/components/Divider"
+import Button from "@/components/Button"
+import { useNavigate } from "react-router-dom"
+import { useState } from "react"
+import Input from "@/components/Input"
+import { useAuth } from "@/context/AuthContext"
+import { useToast } from "@/context/ToastContext"
 
 function Login() {
-  const { login, loading } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const nav = useNavigate();
-  const { toast } = useToast();
+  const { login, loading } = useAuth()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const nav = useNavigate()
+  const { toast } = useToast()
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
+    e.preventDefault()
+    setError("")
     if (!email || !password) {
-      toast("All fields are required", "warning");
-      return;
+      toast("All fields are required", "warning")
+      return
     }
 
     try {
-      await login(email, password);
-    } catch (err: any) {
-      if (err.code === "ERR_NETWORK") {
-        toast("You don't have internet connection", "error");
-      }
-
-      if (err.response) {
-        toast(
-          err?.response.data.message ||
-            "An error occured, try reloading the page and try again",
-          "error",
-        );
-      }
-
-      if (err.response.data.code === 500) {
-        toast("Something went wrong, please try again later", "error");
-      }
+      await login(email, password)
+    } catch {
+      // API errors are toasted in AuthContext.login
     }
   }
 
@@ -58,7 +44,9 @@ function Login() {
               <path d="M2 2h4v4H2zM8 2h4v4H8zM2 8h4v4H2zM8 8l2 4h2L10 8z" />
             </svg>
           </div>
-          <span className="text-base font-semibold text-slate-100">PaperBase</span>
+          <span className="text-base font-semibold text-slate-100">
+            PaperBase
+          </span>
         </div>
 
         <div
@@ -80,12 +68,14 @@ function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="text-xs text-slate-500 mb-1.5 block">Email address</label>
+              <label className="text-xs text-slate-500 mb-1.5 block">
+                Email address
+              </label>
               <Input
                 type="email"
                 placeholder="you@university.edu"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -103,7 +93,7 @@ function Login() {
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             {error && (
@@ -114,7 +104,11 @@ function Login() {
                 {error}
               </div>
             )}
-            <Button variant="primary" className="w-full mt-1" disabled={loading}>
+            <Button
+              variant="primary"
+              className="w-full mt-1"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <span className="w-3 h-3 rounded-full border border-white/30 border-t-white animate-spin" />
@@ -144,7 +138,7 @@ function Login() {
         </p>
       </div>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default Login
