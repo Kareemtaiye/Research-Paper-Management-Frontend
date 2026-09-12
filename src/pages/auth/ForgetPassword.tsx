@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/context/ToastContext";
-import axios from "axios";
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useToast } from "@/context/ToastContext"
+import { isNetworkError, isServerError, toastApiError } from "@/utils/apiError"
+import axios from "axios"
 import {
   AuthButton,
   AuthField,
@@ -9,32 +10,36 @@ import {
   AuthInput,
   AuthShell,
   SentState,
-} from "@/components/AuthShell";
+} from "@/components/AuthShell"
 
-const BASE_API_URL = import.meta.env.VITE_API_URL;
+const BASE_API_URL = import.meta.env.VITE_API_URL
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [sent, setSent] = useState(false);
-  const { toast } = useToast();
-  const nav = useNavigate();
+  const [email, setEmail] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [sent, setSent] = useState(false)
+  const { toast } = useToast()
+  const nav = useNavigate()
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    e.preventDefault()
     if (!email.trim()) {
-      toast("Enter your email address", "warning");
-      return;
+      toast("Enter your email address", "warning")
+      return
     }
-    setSubmitting(true);
+    setSubmitting(true)
     try {
-      await axios.post(`${BASE_API_URL}/auth/forgot-password`, { email });
-      setSent(true);
-    } catch {
-      // Always show success — don't reveal if email exists
-      setSent(true);
+      await axios.post(`${BASE_API_URL}/auth/forgot-password`, { email })
+      setSent(true)
+    } catch (err) {
+      if (isNetworkError(err) || isServerError(err)) {
+        toastApiError(err, toast)
+        return
+      }
+      // Always show success for API errors — don't reveal if email exists
+      setSent(true)
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
   }
 
@@ -56,7 +61,7 @@ export default function ForgotPassword() {
                 type="email"
                 placeholder="name@example.com"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 autoFocus
               />
             </AuthField>
@@ -85,5 +90,5 @@ export default function ForgotPassword() {
         />
       )}
     </AuthShell>
-  );
+  )
 }
