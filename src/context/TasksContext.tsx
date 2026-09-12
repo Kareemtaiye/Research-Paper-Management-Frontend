@@ -132,6 +132,8 @@ export const TasksProvider = ({
           published_at: data.published_at,
         })
         toast(`Paper: ${data.title} import complete.`)
+
+        fetchAllTasks()
       }
     },
     [updatePaper],
