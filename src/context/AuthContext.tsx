@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useCallback, useEffect } from "rea
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "./ToastContext";
+import { isUnauthorized, toastApiError } from "@/utils/apiError";
 
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,6 +12,7 @@ interface User {
   email: string;
   full_name: string | null;
   role: string;
+  email_verified: boolean;
   created_at: string;
 }
 
@@ -47,24 +49,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       setUser(res.data);
       localStorage.setItem("user_id", res.data.id);
-    } catch (err: any) {
-      //
-      console.log(err.response.data);
-
-      if (err.response?.status === 401 || err.response?.data?.code === 401) {
+    } catch (err) {
+      if (isUnauthorized(err)) {
         localStorage.removeItem("access_token");
         localStorage.removeItem("user_id");
         setToken(null);
         setUser(null);
         navigate("/login");
-      } else if (err.code === "ERR_NETWORK") {
-        toast("No internet connection", "error");
       } else {
-        toast(err.response?.data?.detail ?? "Failed to load user", "error");
-      }
-
-      if (err.response.data.code === 500) {
-        toast("Something went wrong, please try again later", "error");
+        toastApiError(err, toast, "Failed to load user");
       }
     } finally {
       setLoading(false);
@@ -88,28 +81,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         formdata.append("username", email);
         formdata.append("password", password);
 
-        const res = await axios.post(`${BASE_API_URL}/auth/token`, formdata);
+        const res = await axios.post(`${BASE_API_URL}/auth/token`, formdata, {
+          withCredentials: true,
+        });
 
         const accessToken = res.data.access_token;
         localStorage.setItem("access_token", accessToken);
         setToken(accessToken);
         await fetchMe(accessToken);
         navigate("/");
-      } catch (err: any) {
-        if (err.code === "ERR_NETWORK") {
-          toast("You don't have internet connection", "error");
-        }
-
-        if (err.response) {
-          toast(
-            err?.response.data.message ||
-              "An error occured, try reloading the page and try again",
-          );
-        }
-
-        if (err.response.data.code === 500) {
-          toast("Something went wrong, please try again later", "error");
-        }
+      } catch (err) {
+        toastApiError(err, toast);
       } finally {
         setLoading(false);
       }
@@ -120,34 +102,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.post(`${BASE_API_URL}/auth/logout`, {
-        headers: { Authorization: `bearer ${token}` },
-      });
+      const res = await axios.post(
+        `${BASE_API_URL}/auth/logout`,
+        {},
+        { withCredentials: true, headers: { Authorization: `bearer ${token}` } },
+      );
 
       localStorage.removeItem("access_token");
       localStorage.removeItem("user_id");
       setToken(null);
       setUser(null);
-    } catch (err: any) {
-      // Don't navigate — just clear token and let ProtectedRoute handle it
+    } catch (err) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("user_id");
       setToken(null);
       setUser(null);
 
-      // Safe version
-      if (err.response?.status === 401 || err.response?.data?.code === 401) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("user_id");
-        setToken(null);
-        setUser(null);
+      if (isUnauthorized(err)) {
         navigate("/login");
-      } else if (err.code === "ERR_NETWORK") {
-        toast("No internet connection", "error");
-      }
-
-      if (err.response.data.code === 500) {
-        toast("Something went wrong, please try again later", "error");
+      } else {
+        toastApiError(err, toast);
       }
     } finally {
       setLoading(false);
