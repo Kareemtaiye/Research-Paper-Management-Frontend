@@ -38,7 +38,7 @@ function Dashboard() {
     p => p.status === "processing" || p.status === "queued" || p.status == "pending",
   ).length;
   const failed = recentPapers?.filter(p => p.status === "failed").length;
-  const activeTasks = tasks.filter(t => t.status === "running");
+  const activeTasks = tasks.filter(t => t.status === "processing");
 
   async function handleArxivImport() {
     if (!arxivInput.trim()) return;
@@ -67,6 +67,8 @@ function Dashboard() {
       setImporting(false);
     }
   }
+
+  console.log(tasks);
 
   return (
     <div>
