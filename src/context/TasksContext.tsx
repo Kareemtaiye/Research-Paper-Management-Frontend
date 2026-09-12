@@ -57,7 +57,6 @@ export const TasksProvider = ({
 
   //   const token = localStorage.getItem("access_token");
   //   const userId = localStorage.getItem("user_id");
-
   const fetchAllTasks = useCallback(async () => {
     setLoading(true);
     try {
@@ -65,8 +64,36 @@ export const TasksProvider = ({
         headers: { Authorization: `bearer ${token}` },
       });
 
-      // console.log("Fetched tasks:", res.data.data);
-      setTasks(res.data.data.data);
+      const apiTasks: Task[] = res.data.data.data;
+
+      setTasks(prev => {
+        // For each API task — check if we have a newer local version
+        const merged = apiTasks.map(apiTask => {
+          const localTask = prev.find(t => t.task_id === apiTask.task_id);
+
+          if (!localTask) return apiTask;
+
+          // Terminal states from API always win — they're final
+          if (apiTask.status === "completed" || apiTask.status === "failed") {
+            return apiTask;
+          }
+
+          // If local task is in a terminal state but API hasn't caught up yet
+          // keep the local terminal state — don't regress to running
+          if (localTask.status === "completed" || localTask.status === "failed") {
+            return localTask;
+          }
+
+          // For in-progress tasks — WS data is more recent, prefer local
+          return { ...apiTask, ...localTask };
+        });
+
+        // Keep any local tasks not yet in API response
+        const apiTaskIds = new Set(apiTasks.map(t => t.task_id));
+        const localOnly = prev.filter(t => !apiTaskIds.has(t.task_id));
+
+        return [...localOnly, ...merged];
+      });
     } catch (err) {
       toastApiError(err, toast);
     } finally {
