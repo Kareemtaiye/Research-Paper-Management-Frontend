@@ -17,7 +17,7 @@ const BASE_API_URL = import.meta.env.VITE_API_URL;
 
 function Dashboard() {
   /* Beginning changes */
-  const { tasks } = useTasks();
+  const { tasks, fetchAllTasks } = useTasks();
   const { recentPapers, loading, fetchAllPapers, fetchRecentPapers } = usePapers();
 
   const token = localStorage.getItem("access_token") || "null";
@@ -59,6 +59,7 @@ function Dashboard() {
       fetchRecentPapers();
       fetchAllPapers();
       setArxivInput("");
+      fetchAllTasks();
       toast("Paper import started", "success");
     } catch (err) {
       toastApiError(err, toast);
