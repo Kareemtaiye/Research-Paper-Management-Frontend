@@ -58,6 +58,7 @@ function Dashboard() {
       // setRecentPapers(res.data.data.data);
       fetchRecentPapers();
       fetchAllPapers();
+      setArxivInput("");
       toast("Paper import started", "success");
     } catch (err) {
       toastApiError(err, toast);
