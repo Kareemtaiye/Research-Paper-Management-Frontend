@@ -1,18 +1,20 @@
-import { Badge } from "@/components/Badge";
-import Button from "@/components/Button";
-import Divider from "@/components/Divider";
-import { StatusChip } from "@/components/StatusChip";
-import { Icon, IconSpin } from "@/ui/icons";
-import { formatDate, formatTime } from "@/utils/utils";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Badge } from "@/components/Badge"
+import Button from "@/components/Button"
+import Divider from "@/components/Divider"
+import { StatusChip } from "@/components/StatusChip"
+import { Icon, IconSpin } from "@/ui/icons"
+import { formatDate, formatTime } from "@/utils/utils"
+import axios from "axios"
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
 
-import { Paper } from "@/types/Paper";
-import { useAuth } from "@/context/AuthContext";
+import { Paper } from "@/types/Paper"
+import { useAuth } from "@/context/AuthContext"
+import { useToast } from "@/context/ToastContext"
+import { toastApiError } from "@/utils/apiError"
 
-const BASE_API_URL = import.meta.env.VITE_API_URL;
-let TIMELINE_EVENTS = [];
+const BASE_API_URL = import.meta.env.VITE_API_URL
+let TIMELINE_EVENTS = []
 // const TIMELINE_EVENTS = [
 
 //   {
@@ -54,42 +56,43 @@ let TIMELINE_EVENTS = [];
 // ];
 
 function PaperDetails() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [paper, setPaper] = useState<Paper>({});
-  const { token } = useAuth();
+  const [loading, setLoading] = useState<boolean>(false)
+  const [paper, setPaper] = useState<Paper>({})
+  const { token } = useAuth()
+  const { toast } = useToast()
 
-  const queryParams = useParams();
-  const paperId = queryParams.id;
+  const queryParams = useParams()
+  const paperId = queryParams.id
 
   //   const paper = PAPERS.find(p => p.id === paperId) || PAPERS[0];
 
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false)
   const copy = (text: string) => {
-    navigator.clipboard.writeText(text).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
+    navigator.clipboard.writeText(text).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
 
   async function fetchPaperDetails() {
-    setLoading(true);
+    setLoading(true)
     try {
       const res = await axios.get(`${BASE_API_URL}/papers/${paperId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
-      setPaper(res.data.data);
-    } catch (err: any) {
-      console.log("Err:", err.response.data);
+      setPaper(res.data.data)
+    } catch (err) {
+      toastApiError(err, toast)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   useEffect(function () {
-    fetchPaperDetails();
-  }, []);
+    fetchPaperDetails()
+  }, [])
 
   useEffect(
     function () {
@@ -99,7 +102,7 @@ function PaperDetails() {
           paper.status === "processing" ||
           paper.status === "failed"
         ) {
-          TIMELINE_EVENTS = [];
+          TIMELINE_EVENTS = []
         } else {
           TIMELINE_EVENTS = [
             {
@@ -121,16 +124,16 @@ function PaperDetails() {
               detail: "Full-text index built · embedding stored in pgvector",
               status: "done",
             },
-          ];
+          ]
 
-          TIMELINE_EVENTS[0].ts = paper.created_at;
-          TIMELINE_EVENTS[1].ts = paper.updated_at;
-          TIMELINE_EVENTS[1].ts = paper.updated_at;
+          TIMELINE_EVENTS[0].ts = paper.created_at
+          TIMELINE_EVENTS[1].ts = paper.updated_at
+          TIMELINE_EVENTS[1].ts = paper.updated_at
         }
       }
     },
     [fetchPaperDetails, paper],
-  );
+  )
 
   {
     if (loading)
@@ -140,7 +143,7 @@ function PaperDetails() {
             <IconSpin size={20} />
           </span>
         </div>
-      );
+      )
   }
 
   return (
@@ -166,23 +169,27 @@ function PaperDetails() {
             </h1>
             <StatusChip status={paper.status} />
           </div>
-          <div className="text-sm text-slate-500">{paper.authors?.join(", ")}</div>
+          <div className="text-sm text-slate-500">
+            {paper.authors?.join(", ")}
+          </div>
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex gap-1.5">
-              {paper.categories?.map(c => (
-                <Badge key={c}>{c}</Badge>
-              ))}
+              {paper.categories?.map((c) => <Badge key={c}>{c}</Badge>)}
             </div>
             <div className="h-3 w-px bg-white/10" />
             <div className="flex items-center gap-1.5">
-              <span className="font-mono text-xs text-slate-500">{paper.arxiv_id}</span>
+              <span className="font-mono text-xs text-slate-500">
+                {paper.arxiv_id}
+              </span>
               <button
                 onClick={() => copy(paper.arxiv_id || "")}
                 className="text-slate-600 hover:text-slate-400 transition-colors cursor-pointer"
               >
                 <Icon.Copy />
               </button>
-              {copied && <span className="text-[10px] text-indigo-400">Copied</span>}
+              {copied && (
+                <span className="text-[10px] text-indigo-400">Copied</span>
+              )}
             </div>
             <div className="h-3 w-px bg-white/10" />
             <a
@@ -209,7 +216,9 @@ function PaperDetails() {
               <div className="text-[10px] font-medium text-slate-500 uppercase tracking-widest mb-3">
                 Abstract
               </div>
-              <p className="text-sm text-slate-300 leading-relaxed">{paper.abstract}</p>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                {paper.abstract}
+              </p>
             </div>
             <div
               className="rounded-lg border p-5"
@@ -224,7 +233,10 @@ function PaperDetails() {
               </div>
               {TIMELINE_EVENTS.map((ev, i) => (
                 <div key={i} className="flex gap-4">
-                  <div className="flex flex-col items-center" style={{ minWidth: 16 }}>
+                  <div
+                    className="flex flex-col items-center"
+                    style={{ minWidth: 16 }}
+                  >
                     <div
                       className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
                       style={{
@@ -251,7 +263,9 @@ function PaperDetails() {
                         {ev.ts}
                       </span>
                     </div>
-                    <div className="text-xs text-slate-500 mt-0.5">{ev.detail}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      {ev.detail}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -287,16 +301,24 @@ function PaperDetails() {
                 },
                 {
                   label: "Authors",
-                  value: `${!paper.authors ? "--" : `author${paper.authors?.length}`} ${paper.authors?.length !== 1 ? "s" : ""}`,
+                  value: `${
+                    !paper.authors ? "--" : `author${paper.authors?.length}`
+                  } ${paper.authors?.length !== 1 ? "s" : ""}`,
                 },
                 {
                   label: "Published Date",
-                  value: `${!paper.published_at ? "--" : formatDate(paper.published_at)} · ${!paper.published_at ? "--" : formatTime(paper.published_at)}`,
+                  value: `${
+                    !paper.published_at ? "--" : formatDate(paper.published_at)
+                  } · ${
+                    !paper.published_at ? "--" : formatTime(paper.published_at)
+                  }`,
                 },
               ].map(({ label, value }) => (
                 <div key={label} className="space-y-0.5">
                   <div className="text-[11px] text-slate-600">{label}</div>
-                  <div className="text-xs text-slate-400 font-mono">{value}</div>
+                  <div className="text-xs text-slate-400 font-mono">
+                    {value}
+                  </div>
                 </div>
               ))}
             </div>
@@ -336,7 +358,7 @@ function PaperDetails() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default PaperDetails;
+export default PaperDetails
